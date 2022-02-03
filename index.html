@@ -1,0 +1,2585 @@
+<!DOCTYPE html>
+<!-- Created by Andrew Hulterstrom -->
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato|Roboto|Roboto+Condensed|Roboto+Mono">
+    <script src="dist/index.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+
+    <script type='text/javascript' src='movesarray.js'></script>
+    <script type='text/javascript' src='gymleaderarray.js'></script>
+
+
+    <!-- Link to the last version of BabylonJS -->
+    <script src="https://preview.babylonjs.com/babylon.js"></script>
+    <!-- Link to the last version of BabylonJS loaders to enable loading filetypes such as .gltf -->
+    <script src="https://preview.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+    <!-- Link to pep.js to ensure pointer events work consistently in all browsers -->
+    <script src="https://code.jquery.com/pep/0.4.1/pep.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+
+    <title>Poke-Site</title>
+</head>
+
+<body>
+    <br>
+    <div id="gamescreen" class="gamescreen">
+        <!--loadingscreen-->
+        <div id="loadingscreen" class="gameplaywindowsize loadingscreen">
+            <p>Loading...</p>
+            <div class="loader"></div>
+        </div>
+        <!-- gameplay window - the upper portion of the game screen -->
+        <div id="gameplaywindow" class="gameplaywindow largepokeborder">
+            <!--titlescreen-->
+            <div id="titlescreen" class="titlescreen">
+                <div id="introdiv" class="gameplaywindowsize">
+                    <img draggable="false" id="intrologo" class="intrologo" src="pokemonlogo.svg">
+                    <img draggable="false" id="intrologoshadow" class="intrologo intrologoshadow"
+                        src="pokemonlogoshadow.png">
+                    <img draggable="false" id="introbackground" class="introbackground" src="introbackground.jpg">
+                    <img draggable="false" id="introbackground2" class="introbackground" src="introbackground.jpg">
+                </div>
+            </div>
+            <!--mainmenuscreen-->
+            <div id="mainmenuscreen" class="mainmenuscreen hidden">
+                <p id="menutext"></p>
+                <div class="mainmenucolumn">
+                    <img draggable="false" id="menuplayersprite" class="menuplayersprite" src="">
+                </div>
+                <div class="mainmenucolumn stats">
+                    <p class="statstitle">Player Stats</p>
+                    <div class="statscolumn left">
+                        <p class="statlabel">Battles: </p>
+                        <p class="statlabel">Wins: </p>
+                        <p class="statlabel">Losses: </p>
+                        <p class="statlabel">Win-rate: </p>
+                        <p class="statlabel">Gym Badges: </p>
+                    </div>
+                    <div class="statscolumn right">
+                        <p id="stat_battles" class="statvalue"></p>
+                        <p id="stat_wins" class="statvalue"></p>
+                        <p id="stat_losses" class="statvalue"></p>
+                        <p id="stat_winrate" class="statvalue"></p>
+                        <p id="stat_badgecount" class="statvalue"></p>
+                    </div>
+                </div>
+            </div>
+            <!--pokedexscreen-->
+            <div id="pokedexscreen" class="pokedexscreen hidden">
+                <!-- Will appear to show more information when a pokemon is clicked on -->
+                <div id="pokedexinfo" class="pokedexinfo">
+                    <img draggable="false" src="closebutton.png" onclick=pokedexHideInfo() id="pokedexinfoclosebutton"
+                        class="pokedexinfoclosebutton">
+                    <div id="pokedexinfotitle" class="pokedexinfotitle">
+                        <p id="pokedexinfoname" class="pokedexinfoname"></p>
+                    </div>
+                    <div id=pokedexinfobody class="pokedexinfobody">
+                        <div class="pokedexinfobabylon">
+                            <canvas id="renderCanvas"></canvas>
+                        </div>
+                        <div>
+                            <p id="pokedexinfodescription" class="pokedexinfodescription"></p>
+                            <p id="pokedexinfoknownas" class="pokedexinfoknownas"></p>
+                            <p id="pokedexinfotype" class="pokedexinfotype"></p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Contains the pokedex entries -->
+                <div id="pokedexentries" class="pokedexentries">
+                    <!--Pokedex entries are dynamically generated here-->
+                </div>
+            </div>
+            <!--playerCreationScreen-->
+            <div id="playercreationscreen" class="playercreationscreen hidden">
+                <div id="playercreationinfo" class="playercreationinfo">
+                    <p>What is your name?</p>
+                    <input type="text" id="playercreationname" class="playercreationname" placeholder="Buck Wheat">
+                </div>
+                <div id="playercreationsprite" class="playercreationsprite hidden">
+                    <p>Select your trainer:</p>
+                    <img draggable="false" id="playercharacteroption1" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption1')"
+                        src="sprites/player sprites/FRLG_Red.png">
+                    <img draggable="false" id="playercharacteroption2" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption2')"
+                        src="sprites/player sprites/FRLG_Leaf.png">
+                    <img draggable="false" id="playercharacteroption3" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption3')"
+                        src="sprites/player sprites/HGSS_Ethan.png">
+                    <img draggable="false" id="playercharacteroption4" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption4')"
+                        src="sprites/player sprites/HGSS_Lyra.png">
+                    <img draggable="false" id="playercharacteroption5" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption5')"
+                        src="sprites/player sprites/RS_Brendan.png">
+                    <img draggable="false" id="playercharacteroption6" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption6')"
+                        src="sprites/player sprites/RS_May.png">
+                    <img draggable="false" id="playercharacteroption7" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption7')"
+                        src="sprites/player sprites/DP_Lucas.png">
+                    <img draggable="false" id="playercharacteroption8" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption8')"
+                        src="sprites/player sprites/DP_Dawn.png">
+                    <img draggable="false" id="playercharacteroption9" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption9')"
+                        src="sprites/player sprites/BW_Hilbert.png">
+                    <img draggable="false" id="playercharacteroption10" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption10')"
+                        src="sprites/player sprites/BW_Hilda.png">
+                    <img draggable="false" id="playercharacteroption11" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption11')"
+                        src="sprites/player sprites/B2W2_Nate.png">
+                    <img draggable="false" id="playercharacteroption12" class="playercharacteroption"
+                        onclick="playerCharacterSelected('playercharacteroption12')"
+                        src="sprites/player sprites/B2W2_Rosa.png">
+                </div>
+            </div>
+            <!--freebattlescreen-->
+            <div id="freebattlescreen" class="freebattlescreen gameplaywindowsize hidden">
+                <div id="freebattlerules" class="freebattlescreen gameplaywindowsize">
+                    <p>How many Pokemon would you like to battle with?</p>
+                    <div id="1v1" class="freebattleteamsize" onclick="freeBattleScreen1v1()">
+                        <img draggable="false" id="freebattle1v1ball" src="pokeball1v1.png">
+                        <p>vs</p>
+                        <img draggable="false" id="freebattle1v1ball" src="pokeball1v1.png">
+                    </div>
+                    <div id="3v3" class="freebattleteamsize" onclick="freeBattleScreen3v3()">
+                        <img draggable="false" id="freebattle3v3ball" src="pokeball3v3.png">
+                        <p>vs</p>
+                        <img draggable="false" id="freebattle3v3ball" src="pokeball3v3.png">
+                    </div>
+                    <div id="6v6" class="freebattleteamsize" onclick="freeBattleScreen6v6()">
+                        <img draggable="false" id="freebattle6v6ball" src="pokeball6v6.png">
+                        <p>vs</p>
+                        <img draggable="false" id="freebattle6v6ball" src="pokeball6v6.png">
+                    </div>
+                </div>
+
+                <div id="freebattle1v1" class="freebattlescreen onevone gameplaywindowsize hidden">
+                    <p>Select your Pokemon and your opponent's Pokemon</p>
+                    <div class="selectionarea">
+                        <div class="pokemonselection">
+                            <div class="selection" id="1v1selection1" onclick="selectPokemon('1v1selection1')">
+                                <img draggable="false" id="1v1selection1img" src="pokeball.png">
+                                <p id="1v1selection1p" class="selectionname"></p>
+                            </div>
+                        </div>
+                        <div class="pokemonselection p">
+                            <p>VS</p>
+                        </div>
+                        <div class="pokemonselection">
+                            <div class="selection" id="1v1selection7" onclick="selectPokemon('1v1selection7')">
+                                <img draggable="false" id="1v1selection7img" src="pokeball.png">
+                                <p id="1v1selection7p" class="selectionname"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" class="hidden" id="1v1selection1id" value="">
+                    <input type="text" class="hidden" id="1v1selection7id" value="">
+                </div>
+
+                <div id="freebattle3v3" class="freebattlescreen threevthree gameplaywindowsize hidden">
+                    <p>Select your Pokemon and your opponent's Pokemon</p>
+                    <div class="selectionarea">
+
+                        <div class="pokemonselection">
+                            <div class="selection" id="3v3selection1" onclick="selectPokemon('3v3selection1')">
+                                <img draggable="false" id="3v3selection1img" src="pokeballcrop.png">
+                                <p id="3v3selection1p" class="selectionname"></p>
+                            </div>
+                            <div class="selection" id="3v3selection2" onclick="selectPokemon('3v3selection2')">
+                                <img draggable="false" id="3v3selection2img" src="pokeballcrop.png">
+                                <p id="3v3selection2p" class="selectionname"></p>
+                            </div>
+                            <div class="selection" id="3v3selection3" onclick="selectPokemon('3v3selection3')">
+                                <img draggable="false" id="3v3selection3img" src="pokeballcrop.png">
+                                <p id="3v3selection3p" class="selectionname"></p>
+                            </div>
+                        </div>
+                        <div class="pokemonselection p">
+                            <p>VS</p>
+                        </div>
+                        <div class="pokemonselection">
+                            <div class="selection" id="3v3selection7" onclick="selectPokemon('3v3selection7')">
+                                <img draggable="false" id="3v3selection7img" src="pokeballcrop.png">
+                                <p id="3v3selection7p" class="selectionname"></p>
+                            </div>
+                            <div class="selection" id="3v3selection8" onclick="selectPokemon('3v3selection8')">
+                                <img draggable="false" id="3v3selection8img" src="pokeballcrop.png">
+                                <p id="3v3selection8p" class="selectionname"></p>
+                            </div>
+                            <div class="selection" id="3v3selection9" onclick="selectPokemon('3v3selection9')">
+                                <img draggable="false" id="3v3selection9img" src="pokeballcrop.png">
+                                <p id="3v3selection9p" class="selectionname"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" class="hidden" id="3v3selection1id" value="">
+                    <input type="text" class="hidden" id="3v3selection2id" value="">
+                    <input type="text" class="hidden" id="3v3selection3id" value="">
+                    <input type="text" class="hidden" id="3v3selection7id" value="">
+                    <input type="text" class="hidden" id="3v3selection8id" value="">
+                    <input type="text" class="hidden" id="3v3selection9id" value="">
+                </div>
+
+                <div id="freebattle6v6" class="freebattlescreen sixvsix gameplaywindowsize hidden">
+                    <p>Select your Pokemon and your opponent's Pokemon</p>
+                    <div class="selectionarea">
+
+                        <div class="pokemonselection">
+                            <div class="freebattlecolumn">
+                                <div class="selection" id="6v6selection1" onclick="selectPokemon('6v6selection1')">
+                                    <img draggable="false" id="6v6selection1img" src="pokeballcrop.png">
+                                    <p id="6v6selection1p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="6v6selection2" onclick="selectPokemon('6v6selection2')">
+                                    <img draggable="false" id="6v6selection2img" src="pokeballcrop.png">
+                                    <p id="6v6selection2p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="6v6selection3" onclick="selectPokemon('6v6selection3')">
+                                    <img draggable="false" id="6v6selection3img" src="pokeballcrop.png">
+                                    <p id="6v6selection3p" class="selectionname"></p>
+                                </div>
+                            </div>
+                            <div class="freebattlecolumn">
+                                <div class="selection" id="6v6selection4" onclick="selectPokemon('6v6selection4')">
+                                    <img draggable="false" id="6v6selection4img" src="pokeballcrop.png">
+                                    <p id="6v6selection4p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="6v6selection5" onclick="selectPokemon('6v6selection5')">
+                                    <img draggable="false" id="6v6selection5img" src="pokeballcrop.png">
+                                    <p id="6v6selection5p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="6v6selection6" onclick="selectPokemon('6v6selection6')">
+                                    <img draggable="false" id="6v6selection6img" src="pokeballcrop.png">
+                                    <p id="6v6selection6p" class="selectionname"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pokemonselection p">
+                            <p>VS</p>
+                        </div>
+                        <div class="pokemonselection">
+                            <div class="freebattlecolumn">
+                                <div class="selection" id="6v6selection7" onclick="selectPokemon('6v6selection7')">
+                                    <img draggable="false" id="6v6selection7img" src="pokeballcrop.png">
+                                    <p id="6v6selection7p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="6v6selection8" onclick="selectPokemon('6v6selection8')">
+                                    <img draggable="false" id="6v6selection8img" src="pokeballcrop.png">
+                                    <p id="6v6selection8p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="6v6selection9" onclick="selectPokemon('6v6selection9')">
+                                    <img draggable="false" id="6v6selection9img" src="pokeballcrop.png">
+                                    <p id="6v6selection9p" class="selectionname"></p>
+                                </div>
+                            </div>
+                            <div class="freebattlecolumn">
+                                <div class="selection" id="6v6selection10" onclick="selectPokemon('6v6selection10')">
+                                    <img draggable="false" id="6v6selection10img" src="pokeballcrop.png">
+                                    <p id="6v6selection10p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="6v6selection11" onclick="selectPokemon('6v6selection11')">
+                                    <img draggable="false" id="6v6selection11img" src="pokeballcrop.png">
+                                    <p id="6v6selection11p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="6v6selection12" onclick="selectPokemon('6v6selection12')">
+                                    <img draggable="false" id="6v6selection12img" src="pokeballcrop.png">
+                                    <p id="6v6selection12p" class="selectionname"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="text" class="hidden" id="6v6selection1id" value="">
+                    <input type="text" class="hidden" id="6v6selection2id" value="">
+                    <input type="text" class="hidden" id="6v6selection3id" value="">
+                    <input type="text" class="hidden" id="6v6selection4id" value="">
+                    <input type="text" class="hidden" id="6v6selection5id" value="">
+                    <input type="text" class="hidden" id="6v6selection6id" value="">
+                    <input type="text" class="hidden" id="6v6selection7id" value="">
+                    <input type="text" class="hidden" id="6v6selection8id" value="">
+                    <input type="text" class="hidden" id="6v6selection9id" value="">
+                    <input type="text" class="hidden" id="6v6selection10id" value="">
+                    <input type="text" class="hidden" id="6v6selection11id" value="">
+                    <input type="text" class="hidden" id="6v6selection12id" value="">
+                </div>
+            </div>
+            <!-- gym leader screen -->
+            <div id="gymleaderscreen" class="gymleaderscreen hidden">
+                <div id="gymleaderselectionscreen" class="gameplaywindowsize">
+                    <p class="gymleaderscreentitle">Take the Gym Leader Challenge!</p>
+                    <div id=gymleader1div class="gymleaderoption">
+                        <div id="gymleader1locked" class="locked">
+                            <img draggable="false" class="lockedimg" src="images/lock.png">
+                            <p>LOCKED</p>
+                        </div>
+                        <img draggable="false" id="gymleader1img" class="gymleaderimg"
+                            onclick="gymLeaderChallengeSelected('1')" src="sprites/gym leader sprites/VSBrock.png">
+                    </div>
+                    <div id=gymleader2div class="gymleaderoption">
+                        <div id="gymleader2locked" class="locked">
+                            <img draggable="false" class="lockedimg" src="images/lock.png">
+                            <p>LOCKED</p>
+                        </div>
+                        <img draggable="false" id="gymleader2img" class="gymleaderimg"
+                            onclick="gymLeaderChallengeSelected('2')" src="sprites/gym leader sprites/VSMisty.png">
+                    </div>
+                    <div id=gymleader3div class="gymleaderoption">
+                        <div id="gymleader3locked" class="locked">
+                            <img draggable="false" class="lockedimg" src="images/lock.png">
+                            <p>LOCKED</p>
+                        </div>
+                        <img draggable="false" id="gymleader3img" class="gymleaderimg"
+                            onclick="gymLeaderChallengeSelected('3')" src="sprites/gym leader sprites/VSLt_Surge.png">
+                    </div>
+                    <div id=gymleader4div class="gymleaderoption">
+                        <div id="gymleader4locked" class="locked">
+                            <img draggable="false" class="lockedimg" src="images/lock.png">
+                            <p>LOCKED</p>
+                        </div>
+                        <img draggable="false" id="gymleader4img" class="gymleaderimg"
+                            onclick="gymLeaderChallengeSelected('4')" src="sprites/gym leader sprites/VSErika.png">
+                    </div>
+                    <div id=gymleader5div class="gymleaderoption">
+                        <div id="gymleader5locked" class="locked">
+                            <img draggable="false" class="lockedimg" src="images/lock.png">
+                            <p>LOCKED</p>
+                        </div>
+                        <img draggable="false" id="gymleader5img" class="gymleaderimg"
+                            onclick="gymLeaderChallengeSelected('5')" src="sprites/gym leader sprites/VSJanine.png">
+                    </div>
+                    <div id=gymleader6div class="gymleaderoption">
+                        <div id="gymleader6locked" class="locked">
+                            <img draggable="false" class="lockedimg" src="images/lock.png">
+                            <p>LOCKED</p>
+                        </div>
+                        <img draggable="false" id="gymleader6img" class="gymleaderimg"
+                            onclick="gymLeaderChallengeSelected('6')" src="sprites/gym leader sprites/VSSabrina.png">
+                    </div>
+                    <div id=gymleader7div class="gymleaderoption">
+                        <div id="gymleader7locked" class="locked">
+                            <img draggable="false" class="lockedimg" src="images/lock.png">
+                            <p>LOCKED</p>
+                        </div>
+                        <img draggable="false" id="gymleader7img" class="gymleaderimg"
+                            onclick="gymLeaderChallengeSelected('7')" src="sprites/gym leader sprites/VSBlaine.png">
+                    </div>
+                    <div id=gymleader8div class="gymleaderoption">
+                        <div id="gymleader8locked" class="locked">
+                            <img draggable="false" class="lockedimg" src="images/lock.png">
+                            <p>LOCKED</p>
+                        </div>
+                        <img draggable="false" id="gymleader8img" class="gymleaderimg"
+                            onclick="gymLeaderChallengeSelected('8')" src="sprites/gym leader sprites/VSGiovanni.png">
+                    </div>
+                    <p id="gymleaderselection" class="hidden"></p>
+                </div>
+                <div id="gympokemonselection" class="gameplaywindowsize">
+                    <div id="gympokemon6selections" class="freebattlescreen sixvsix gameplaywindowsize">
+                        <p id="gymleaderscreentitle" class="gymleaderscreentitle">Select your Pokemon!</p>
+                        <div class="selectionarea">
+
+                            <div class="pokemonselection">
+                                <div class="selection" id="gymselection1" onclick="selectGymPokemon('gymselection1')">
+                                    <img draggable="false" id="gymselection1img" src="pokeballcrop.png">
+                                    <p id="gymselection1p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="gymselection2" onclick="selectGymPokemon('gymselection2')">
+                                    <img draggable="false" id="gymselection2img" src="pokeballcrop.png">
+                                    <p id="gymselection2p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="gymselection3" onclick="selectGymPokemon('gymselection3')">
+                                    <img draggable="false" id="gymselection3img" src="pokeballcrop.png">
+                                    <p id="gymselection3p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="gymselection4" onclick="selectGymPokemon('gymselection4')">
+                                    <img draggable="false" id="gymselection4img" src="pokeballcrop.png">
+                                    <p id="gymselection4p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="gymselection5" onclick="selectGymPokemon('gymselection5')">
+                                    <img draggable="false" id="gymselection5img" src="pokeballcrop.png">
+                                    <p id="gymselection5p" class="selectionname"></p>
+                                </div>
+                                <div class="selection" id="gymselection6" onclick="selectGymPokemon('gymselection6')">
+                                    <img draggable="false" id="gymselection6img" src="pokeballcrop.png">
+                                    <p id="gymselection6p" class="selectionname"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="text" class="hidden" id="gymselection1id" value="">
+                        <input type="text" class="hidden" id="gymselection2id" value="">
+                        <input type="text" class="hidden" id="gymselection3id" value="">
+                        <input type="text" class="hidden" id="gymselection4id" value="">
+                        <input type="text" class="hidden" id="gymselection5id" value="">
+                        <input type="text" class="hidden" id="gymselection6id" value="">
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="battlescreen" class="battlescreen gameplaywindowsize hidden">
+                <div id="battleview" class="battleview" style="background-image: url(battlebackground.jpg)">
+                    <img draggable="false" id="mypokemonsprite" class="playerpokemonsprite" src="">
+                    <img draggable="false" id="opppokemonsprite" class="opppokemonsprite" src="">
+                    <div id="mybattlehud" class="battlehud player">
+                        <p id="playerpokemonname" class="pokemonname"></p>
+                        <p id="mylvl" class="lvl">Lv.50</p>
+                        <img id="mystatuseffectlabel" class="statuseffectlabel hidden">
+                        <div id="hpdiv" class="hpdiv">
+                            <p id="myhpcurrent" class="hp current"></p>
+                            <p id="myhpmax" class="hp max"></p>
+                        </div>
+                        <div id="myhpbarcontainer" class="hpbarcontainer">
+                            <div id="myhpbar" class="hpbar">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="oppbattlehud" class="battlehud opponent">
+                        <p id="opppokemonname" class="pokemonname"></p>
+                        <p id="opplvl" class="lvl">Lv.50</p>
+                        <img id="oppstatuseffectlabel" class="statuseffectlabel hidden">
+                        <div id="hpdiv" class="hpdiv">
+                            <p id="opphpcurrent" class="hp current"></p>
+                            <p id="opphpmax" class="hp max"></p>
+                        </div>
+                        <div id="opphpbarcontainer" class="hpbarcontainer">
+
+                            <div id="opphpbar" class="hpbar">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="switchview" class="gameplaywindowsize hidden switchview">
+                    <div class="left">
+                        <div id="switchparty1" class="party lead" onclick="switchPokemonSelected('switchparty1')">
+                            <img draggable="false" id="switch1sprite" class="sprite" src="">
+                            <div class="partytext">
+                                <p id="switch1name" class="name"></p>
+                                <p id="switch1lvl" class="lvl">Lv. 50</p>
+                            </div>
+                            <div id="switch1hpdiv" class="hpdiv">
+                                <p>HP:</p>
+                                <p id="switch1hpcurrent" class="hp current"></p>
+                                <p id="switch1hpmax" class="hp max"></p>
+                            </div>
+                            <div id="switch1hpbarcontainer" class="hpbarcontainer">
+                                <div id="switch1hpbar" class="hpbar">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <div id="switchparty2" class="party" onclick="switchPokemonSelected('switchparty2')">
+                            <img draggable="false" id="switch2sprite" class="sprite" src="">
+                            <div class="partytext">
+                                <p id="switch2name" class="name"></p>
+                                <p id="switch2lvl" class="lvl">Lv. 50</p>
+                            </div>
+                            <div id="switch2hpdiv" class="hpdiv">
+                                <p>HP:</p>
+                                <p id="switch2hpcurrent" class="hp current"></p>
+                                <p id="switch2hpmax" class="hp max"></p>
+                            </div>
+                            <div id="switch2hpbarcontainer" class="hpbarcontainer">
+                                <div id="switch2hpbar" class="hpbar">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="switchparty3" class="party" onclick="switchPokemonSelected('switchparty3')">
+                            <img draggable="false" id="switch3sprite" class="sprite" src="">
+                            <div class="partytext">
+                                <p id="switch3name" class="name"></p>
+                                <p id="switch3lvl" class="lvl">Lv. 50</p>
+                            </div>
+                            <div id="switch3hpdiv" class="hpdiv">
+                                <p>HP:</p>
+                                <p id="switch3hpcurrent" class="hp current"></p>
+                                <p id="switch3hpmax" class="hp max"></p>
+                            </div>
+                            <div id="switch3hpbarcontainer" class="hpbarcontainer">
+                                <div id="switch3hpbar" class="hpbar">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="switchparty4" class="party" onclick="switchPokemonSelected('switchparty4')">
+                            <img draggable="false" id="switch4sprite" class="sprite" src="">
+                            <div class="partytext">
+                                <p id="switch4name" class="name"></p>
+                                <p id="switch4lvl" class="lvl">Lv. 50</p>
+                            </div>
+                            <div id="switch4hpdiv" class="hpdiv">
+                                <p>HP:</p>
+                                <p id="switch4hpcurrent" class="hp current"></p>
+                                <p id="switch4hpmax" class="hp max"></p>
+                            </div>
+                            <div id="switch4hpbarcontainer" class="hpbarcontainer">
+                                <div id="switch4hpbar" class="hpbar">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="switchparty5" class="party" onclick="switchPokemonSelected('switchparty5')">
+                            <img draggable="false" id="switch5sprite" class="sprite" src="">
+                            <div class="partytext">
+                                <p id="switch5name" class="name"></p>
+                                <p id="switch5lvl" class="lvl">Lv. 50</p>
+                            </div>
+                            <div id="switch5hpdiv" class="hpdiv">
+                                <p>HP:</p>
+                                <p id="switch5hpcurrent" class="hp current"></p>
+                                <p id="switch5hpmax" class="hp max"></p>
+                            </div>
+                            <div id="switch5hpbarcontainer" class="hpbarcontainer">
+                                <div id="switch5hpbar" class="hpbar">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="switchparty6" class="party last" onclick="switchPokemonSelected('switchparty6')">
+                            <img draggable="false" id="switch6sprite" class="sprite" src="">
+                            <div class="partytext">
+                                <p id="switch6name" class="name"></p>
+                                <p id="switch6lvl" class="lvl">Lv. 50</p>
+                            </div>
+                            <div id="switch6hpdiv" class="hpdiv">
+                                <p>HP:</p>
+                                <p id="switch6hpcurrent" class="hp current"></p>
+                                <p id="switch6hpmax" class="hp max"></p>
+                            </div>
+                            <div id="switch6hpbarcontainer" class="hpbarcontainer">
+                                <div id="switch6hpbar" class="hpbar">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- game navigation - the lower box in the screen with buttons -->
+        <div id="gamenavigation" class="gamenavigation largepokeborder">
+            <!-- navigation bar for title screen -->
+            <div id="titlenavigation" class="titlenavigation hidden">
+                <input type="button" id="startbutton" onclick=titleScreenStartButton() value="Start">
+                <input type="button" id="newgamebutton" onclick=newGame() class="hidden" value="New Game">
+                <input type="button" id="continuegamebutton" onclick=continueGame() class="hidden" value="Continue">
+                <!-- <input type="button" onclick=mainMenuScreen() id="menubutton" value="Menu" class="hidden center"> -->
+            </div>
+            <!-- navigation bar for menu screen-->
+            <div id="mainmenunavigation" class="mainmenunavigation hidden">
+                <input type="button" onclick=pokedexScreen() value="Pokedex">
+                <input type="button" onclick=freeBattleScreen() value="Free Battle">
+                <input type="button" onclick=gymLeaderBattleScreen() value="Challenge">
+            </div>
+            <!-- navigation bar for pokedex screen -->
+            <div id="pokedexnavigation" class="pokedexnavigation hidden">
+                <input type="button" onclick=showShiny() id="shinybutton" class="hidden" value="Shiny">
+                <input type="button" onclick=showNonShiny() id="nonshinybutton" class="hidden" value="non-Shiny">
+                <input type="button" onclick=mainMenuScreen() id="mainmenubutton" class="center mainmenubutton"
+                    value="Main Menu">
+            </div>
+            <!-- navigation bar for player creation screen-->
+            <div id="playercreationnavigation" class="playercreationnavigation hidden">
+                <input type="button" id="playercreationspritecontinue" onclick=playerCreationSpriteSelected()
+                    class="hidden" value="Continue">
+                <input type="button" id="playercreationnamecontinue" onclick=playerCreationNameEntered()
+                    value="Continue">
+            </div>
+            <!-- navigation bar for free battle screen-->
+            <div id="freebattlenavigation" class="freebattlenavigation hidden">
+                <input type="button" onclick=mainMenuScreen() id="mainmenubutton" class="center mainmenubutton"
+                    value="Main Menu">
+                <input type="button" onclick="freeBattleBack()" id="freebattlebackbutton" value="Back">
+                <input type="button" onclick="startFreeBattle()" id="freebattlestartbutton" value="Start Battle">
+            </div>
+            <!-- navigation bar for gym leader screen-->
+            <div id="gymleadernavigation" class="gymleadernavigation hidden">
+                <input type="button" onclick=mainMenuScreen() id="mainmenubutton" class="mainmenubutton"
+                    value="Main Menu">
+                <input type="button" onclick="selectGymBattlePokemon()" id="gympokemonselectbutton"
+                    value="Select Pokemon">
+                <input type="button" onclick="startGymBattle()" id="gymbattlestartbutton" class="hidden"
+                    value="Battle!">
+            </div>
+            <!-- navigation bar for battle screen-->
+            <div id="battlenavigation" class="battlenavigation hidden">
+                <div id="switchviewnavigation" class="battlenavigation hidden">
+                    <div id="switchviewtextdiv" class="battletext">
+                        <p id="switchviewptag"></p>
+                    </div>
+                    <div id="switchviewbuttons" class="battleoptions switchviewbuttons">
+                        <input type="button" id="switchto" onclick="switchTo()" value="Switch">
+                        <input type="button" id="switchmenu_back" onclick="switchMenuBack()" value="Back">
+                    </div>
+                </div>
+                <div id="battleviewnavigation" class="battlenavigation">
+                    <div id="battletextdiv" class="battletext">
+                        <p id="battleptag"></p>
+                    </div>
+                    <div id="battlebuttons" class="battlebuttons">
+                        <div id="battleoptions" class="battleoptions">
+                            <input type="button" id="battleoptions_attack" onclick="attackMenu()" value="Attack">
+                            <input type="button" id="battleoptions_bag" onclick="bagMenu()" value="Bag">
+                            <input type="button" id="battleoptions_pokemon" onclick="switchMenu()" value="Pokemon">
+                            <input type="button" id="battleoptions_run" onclick="run()" value="Run">
+                        </div>
+                        <div id="attackoptions" class="battleoptions hidden">
+                            <input type="button" id="attack1" onclick="actionSelected({action:'attack',index:0})"
+                                value="">
+                            <input type="button" id="attack2" onclick="actionSelected({action:'attack',index:1})"
+                                value="">
+                            <input type="button" id="attack3" onclick="actionSelected({action:'attack',index:2})"
+                                value="">
+                            <input type="button" id="attack4" onclick="actionSelected({action:'attack',index:3})"
+                                value="">
+                        </div>
+                        <div id="nextbutton" class="nextbutton hidden">
+                            <input type="button" id="next" onclick="nextAction()" value="Continue">
+                        </div>
+                        <div id="textnextbutton" class="nextbutton hidden">
+                            <input type="button" id="next" onclick="displayText.type()" value="Continue">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Javascript -->
+    <script>
+        //options for Pokeapi
+        const options = {
+            protocol: 'https',
+            cache: true,
+            versionPath: '/api/v2/',
+        }
+        //define variables;
+        const P = new Pokedex.Pokedex(options);
+        var NationalPokedex;
+        var PokedexDisplayCount = 151;
+        var PokedexEntries = [];
+        var TypeList;
+        var TypedexEntries = [];
+        var pokedexLoaded = 0;
+        var introLoaded = 0;
+        var myTrainer;
+        var displayText;
+        var currentScreen;
+        var battle;
+        //global engine variable used by Babylon JS
+        var engine;
+
+        //Create Pokedex containing all Pokemon
+        P.getPokedexByName("national").then(function (response) {
+            NationalPokedex = response;
+            createPokedex();
+        });
+
+        //Create directory of pokemon types and their interactions
+        P.getTypesList().then(function (response) {
+            TypeList = response.results;
+            for (iCount = 0; iCount < TypeList.length; iCount++) {
+                P.getTypeByName(TypeList[iCount].name).then(function (response) {
+                    TypedexEntries.push(response);
+                });
+            }
+        });
+
+        //Trainer class
+        class Trainer {
+            name;
+            sprite;
+            party = [];
+            constructor(name) {
+                this.name = name;
+            }
+        }
+        //Player class inherits from Trainer class
+        class Player extends Trainer {
+            battlecount;
+            wins;
+            losses;
+            winrate;
+            badgecount;
+            constructor() {
+                super();
+                this.battlecount = 0;
+                this.wins = 0;
+                this.losses = 0;
+                this.winrate = 0;
+                this.badgecount = 0;
+            }
+
+        }
+        //PokedexEntry class will be used to create a directory of Pokemon
+        class PokemonEntry {
+            id;
+            name;
+            type1;
+            type2;
+            description;
+            moves = [];
+            moveset = [];
+            basestats;
+            color;
+            knownas;
+            sprite;
+            sprite_back;
+            sprite_shiny;
+            height;
+            constructor(pokemon) {
+                this.id = pokemon.id;
+                this.name = pokemon.name;
+                this.type1 = pokemon.type1;
+                this.type2 = pokemon.type2
+                this.description = pokemon.description;
+                this.moves = pokemon.moves;
+                this.moveset = pokemon.moveset;
+                this.basestats = pokemon.basestats;
+                this.knownas = pokemon.knownas;
+                this.sprite = pokemon.sprite;
+                this.sprite_back = pokemon.sprite_back;
+                this.sprite_shiny = pokemon.sprite_shiny;
+                this.height = pokemon.height;
+            }
+        }
+        //Pokemon class is used to create Pokemon used for battling
+        class Pokemon extends PokemonEntry {
+            level;
+            IVs = [];
+            EVs = [];
+            nature = [];
+            stats = [];
+            statsModifiers = [];
+            statsModified = [];
+            hp;
+            owner;
+            statuseffect;
+            selectedAction;
+            sleepCounter;
+            multiturnCounter;
+            constructor(pokemon) {
+                super(pokemon);
+                this.level = 50;
+                this.IVs = [8, 8, 8, 8, 8, 8];
+                this.EVs = [85, 85, 85, 85, 85, 85];
+                this.nature = [1, 1, 1, 1, 1, 1];
+
+                //Stat Calculation
+                var level = this.level;
+                var base = this.basestats[5].base_stat;
+                var iv = this.IVs[5];
+                var ev = this.EVs[5];
+                var nature = this.nature[5]
+                var stats = [5];
+
+                // HP is calculated uniquely:
+                this.stats[5] = Math.floor((((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + level + 10);
+                this.hp = this.stats[5];
+
+                // Calculate the 5 other stats:
+                for (var statCount = 0; statCount < 5; statCount++) {
+                    base = this.basestats[statCount].base_stat;
+                    iv = this.IVs[statCount];
+                    ev = this.EVs[statCount];
+                    nature = this.nature[statCount];
+                    this.stats[statCount] = Math.floor(Math.floor((((2 * base + iv + Math.floor(ev / 4)) * level) / 100) + 5) * nature)
+                }
+
+                //In-battle data:
+                this.statuseffect = "none";
+                this.sleepCounter = 0;
+                this.multiturnCounter = { name: "", count: 0, moveindex: null }
+                this.statsModifiers = [0, 0, 0, 0, 0, 0];
+                this.statsModified = [this.stats[0], this.stats[1], this.stats[2], this.stats[3], this.stats[4], this.stats[5]];
+            }
+            //resets attributes that may be changed during battle
+            resetPokemon() {
+                this.hp = this.stats[5];
+                this.statuseffect = "none";
+                this.sleepCounter = 0;
+                this.multiturnCounter = { name: "", count: 0, moveindex: null }
+                this.statsModifiers = [0, 0, 0, 0, 0, 0];
+                this.statsModified = [this.stats[0], this.stats[1], this.stats[2], this.stats[3], this.stats[4], this.stats[5]];
+            }
+            //sets the Pokemon's HP bar to their current hp
+            setHP() {
+                //cap hp at the maxhp
+                if (this.hp > this.stats[5] || this.hp == "max") {
+                    this.hp = this.stats[5];
+                }
+                //Also set a min limit at 0 hp
+                if (this.hp < 0) {
+                    this.hp = 0;
+                }
+                //set text of hp
+                var elemtext = document.getElementById(this.owner + "hpcurrent");
+                elemtext.innerHTML = this.hp;
+                //convert this.hp into a percentage
+                var newhp = Math.ceil(this.hp / this.stats[5] * 100);
+                var elem = document.getElementById(this.owner + "hpbar");
+                var width = parseInt(document.getElementById(this.owner + "hpbar").style.width);
+                var difference = width - newhp;
+                clearInterval(id);
+                //Animate the movement of the healthbar:
+                var id = setInterval(frame, 10);
+                function frame() {
+                    if (width == newhp) {
+                        sethpbarcolor(width, elem);
+                        clearInterval(id);
+                    } else {
+                        if (difference > 0) {
+                            width--;
+                            sethpbarcolor(width, elem);
+                        }
+                        else {
+                            width++;
+                            sethpbarcolor(width, elem);
+                        }
+                        elem.style.width = width + '%';
+                        elem.innerHTML = width * 1 + '%';
+                    }
+                }
+            }
+            //Changes stats when they are modified
+            setStatsModified() {
+                //for all six stats
+                for (iCount = 0; iCount < 6; iCount++) {
+                    //check if it is a positive or negative number or zero
+                    if (this.statsModifiers[iCount] == 0) {
+                        this.statsModified[iCount] = this.stats[iCount];
+                    }
+                    else if (this.statsModifiers[iCount] > 0) {
+                        this.statsModified[iCount] = Math.floor(this.stats[iCount] * ((2 + this.statsModifiers[iCount]) / 2));
+                    }
+                    else {
+                        this.statsModified[iCount] = Math.floor(this.stats[iCount] * (2 / (2 - this.statsModifiers[iCount])));
+                    }
+                }
+                //if paralyzed, cut speed in half
+                if (this.statuseffect == "paralyzed") {
+                    this.statsModified[0] = Math.floor(this.statsModified[0] / 2);
+                }
+            }
+            //Sets the buttons in the navigation bar to the moves the Pokemon can use
+            setAttackButtons() {
+                //Set move to proper attack
+                //reset all
+                for (iCount = 0; iCount < 4; iCount++) {
+                    document.getElementById("attack" + (iCount + 1)).value = "";
+                    document.getElementById("attack" + (iCount + 1)).disabled = true;
+                }
+                //set as many moves as the pokemon has in their moveset
+                for (iCount = 0; iCount < myTrainer.party[0].moveset.length; iCount++) {
+                    document.getElementById("attack" + (iCount + 1)).value = capitalize(myTrainer.party[0].moveset[iCount].name);
+                    document.getElementById("attack" + (iCount + 1)).disabled = false;
+                }
+            }
+            //Used to calculate the result of an attack in a battle
+            attack(moveid, opponent) {
+                //Define variables
+                var move = this.moveset[moveid];
+                var effectiveness = "";
+                var target = this.setMoveTarget(move, opponent);
+                var battletext = [];
+                var eventSequence = [];
+                var moveIsExecuted;
+                var moveHits;
+                var damage = 0;
+                var statusEffect;
+                var statChanges;
+                var hpGain = 0;
+                var recoil = 0;
+
+                //first determine if the move is executed
+                moveIsExecuted = this.isAttackExecuted(move.name, battletext);
+                if (moveIsExecuted) {
+                    //then determine if the move hits
+                    moveHits = this.doesAttackHit(move, target, moveid, battletext);
+                    if (moveHits) {
+
+                        //then determine how much damage the move did;
+                        if (move.meta.category.name === "damage" || move.meta.category.name === "damage+ailment" || move.meta.category.name === "damage+lower" || move.meta.category.name === "damage+raise" || move.meta.category.name === "damage+heal") {
+                            var { damage, effectiveness } = this.calculateDamage(move, opponent, effectiveness);
+                            //output effectiveness of the move to the be displayed on the screen
+                            if (effectiveness !== "") {
+                                battletext.push(effectiveness);
+                            }
+                        }
+
+                        //Determine if a status effect results from the move
+                        if (move.meta.category.name === "ailment" || move.meta.category.name === "damage+ailment") {
+                            statusEffect = this.calculateStatusEffect(move);
+                        }
+
+                        //stat-modifying move
+                        if (move.meta.category.name == "net-good-stats" || move.meta.category.name == "damage+lower" || move.meta.category.name == "damage+raise") {
+                            statChanges = this.calculateStatChanges(move, target);
+                            statChanges.target.changeStats(statChanges, battletext);
+                        }
+
+                        //determine if any healing or recoil damage happened
+                        if (move.meta.category.name === "heal") {
+                            hpGain = Math.ceil(this.stats[5] * move.meta.healing);
+                            battletext.push(capitalize(this.name) + " regained health!");
+                        }
+                        else if (move.meta.category.name === "damage+heal") {
+                            hpGain = Math.ceil(damage * move.meta.drain / 100);
+                            battletext.push(capitalize(opponent.name) + " had it's energy drained!");
+                        }
+                        else if (move.meta.drain < 0) {
+                            recoil = Math.ceil(damage * Math.abs(move.meta.drain) / 100)
+                            battletext.push(capitalize(this.name) + " is damaged by recoil!")
+                        }
+
+
+                        //make the necessary changes to opponent's health
+                        opponent.hp = opponent.hp - damage;
+                        opponent.setHP();
+
+                        //make necessary changes to attacker's health
+                        this.hp += hpGain;
+                        this.hp -= recoil;
+                        this.setHP();
+
+                        //apply any status effects
+                        opponent.setStatusEffect(statusEffect, battletext, move.meta.category.name);
+                    }
+                }
+                //log the result
+                var result = { attacker: this.name, target: target.name, move: move.name, executed: moveIsExecuted, hits: moveHits, effectiveness: effectiveness, damage: damage, status_effect: statusEffect, stat_change: statChanges, hp_gain: hpGain }
+                console.log(result);
+                console.log(battletext);
+                //Type battletext to the screen
+                displayText = new BattleText(battletext);
+                displayText.type();
+            }
+            //Determine who is the target of the move
+            setMoveTarget(move, opponent) {
+                if (move.target.name == "specific-move") { return "" }
+                else if (move.target.name == "selected-pokemon-me-first") { return "" }
+                else if (move.target.name == "ally") { return "" }
+                else if (move.target.name == "users-field") { return "" }
+                else if (move.target.name == "user-or-ally") { return this }
+                else if (move.target.name == "user") { return this }
+                else if (move.target.name == "random-opponent") { return opponent }
+                else if (move.target.name == "all-other-pokemon") { return opponent }
+                else if (move.target.name == "selected-pokemon") { return opponent }
+                else if (move.target.name == "all-opponents") { return opponent }
+                else if (move.target.name == "entire-field") { return "" }
+                else if (move.target.name == "user-and-allies") { return this }
+                else if (move.target.name == "all-pokemon") { return "" }
+            }
+            //Determine if the attack happens or not
+            isAttackExecuted(move, battletext) {
+                var moveIsExecuted;
+                //paralysis check 25% chance of not being able to act
+                if (this.statuseffect === "paralyzed" && Math.random() < 0.25) {
+                    moveIsExecuted = false;
+                    battletext.push(capitalize(this.name) + " is paralyzed! It can't move!")
+                }
+                //sleep check
+                else if (this.statuseffect === "asleep") {
+                    if (this.sleepCounter === 0) {
+                        battletext.push(capitalize(this.name) + " woke up!");
+                        this.statuseffect = "none";
+                        this.setBattleHudDivColor();
+                        moveIsExecuted = true;
+                        battletext.push(capitalize(this.name) + " used " + move + "!");
+                    }
+                    else {
+                        moveIsExecuted = false;
+                        battletext.push(capitalize(this.name) + " is fast asleep!");
+                        this.sleepCounter--;
+                    }
+                }
+                //else the move was executed
+                else {
+                    moveIsExecuted = true;
+                    if (move !== "dig" && move !== "fly" && move !== "dive" && move !== "solar-beam" && move !== "hyper-beam") {
+                        battletext.push(capitalize(this.name) + " used " + move + "!");
+                    }
+                }
+                return moveIsExecuted;
+            }
+            //Determine if the move hits successfully or misses
+            doesAttackHit(userMove, target, moveid, battletext) {
+                var moveHits;
+
+                //check the move's accuracy
+                if (userMove.accuracy >= Math.random() * 100 || userMove.accuracy === null) {
+                    //the move passes first accuracy check, and may hit
+                    //check if we are in a multiturn move that stops us from hitting
+                    if (userMove.name === "dig" || userMove.name === "fly" || userMove.name === "dive" || userMove.name === "solar-beam" || userMove.name === "hyper-beam") {
+                        if (this.multiturnCounter.count === 0) {
+                            this.multiturnCounter.name = userMove.name;
+                            this.multiturnCounter.count = 1;
+                            this.multiturnCounter.moveindex = moveid;
+                            //special cases for certain moves:
+                            if (userMove.name === "dig") {
+                                battletext.push(capitalize(this.name) + " went underground!");
+                                document.getElementById(this.owner + "pokemonsprite").style.visibility = "hidden";
+                                moveHits = false;
+                                return moveHits;
+                            }
+                            else if (userMove.name === "fly") {
+                                battletext.push(capitalize(this.name) + " flew up high!");
+                                document.getElementById(this.owner + "pokemonsprite").style.visibility = "hidden";
+                                moveHits = false;
+                                return moveHits;
+                            }
+                            else if (userMove.name === "dive") {
+                                battletext.push(capitalize(this.name) + " hid underwater!");
+                                document.getElementById(this.owner + "pokemonsprite").style.visibility = "hidden";
+                                moveHits = false;
+                                return moveHits;
+                            }
+                            else if (userMove.name === "solar-beam") {
+                                battletext.push(capitalize(this.name) + " took in sunlight!");
+                                moveHits = false;
+                                return moveHits;
+                            }
+                            else if (userMove.name === "hyper-beam") {
+                                battletext.push(capitalize(this.name) + " used " + userMove.name + "!");
+                                moveHits = true;
+                            }
+                        }
+                        //if using a multiturn move, update the counter
+                        else if (this.multiturnCounter.count === 1) {
+                            this.multiturnCounter.name = "";
+                            this.multiturnCounter.count = 0;
+                            this.multiturnCounter.moveindex = null;
+                            if (userMove.name === "dig" || userMove.name === "fly" || userMove.name === "dive" || userMove.name === "solar-beam") {
+                                battletext.push(capitalize(this.name) + " used " + userMove.name + "!");
+                                document.getElementById(this.owner + "pokemonsprite").style.visibility = "visible";
+                            }
+                            else if (userMove.name === "hyper-beam") {
+                                battletext.push(capitalize(this.name) + " must recharge!")
+                                moveHits = false;
+                                return moveHits;
+                            }
+                        }
+                    }
+                    //check if the move misses because of the opponent using a semi-invulnerable move
+                    if (target.multiturnCounter.name === "dig") {
+                        if (userMove.name === "earthquake" || userMove.name === "magnitude" || userMove.name === "fissure") {
+                            //the move can hit
+                            moveHits = true;
+                            return moveHits;
+                        }
+                        else {
+                            //the move misses
+                            moveHits = false;
+                            battletext.push(capitalize(userMove.name) + " missed!");
+                            var logData = { Attacking_Pokemon: this.name, Defending_Pokemon: target.name, move_name: userMove.name, result: "missed because of " + target.multiturnCounter.name }
+                        }
+                    }
+                    //else check for a miss if the opponent is flying
+                    else if (target.multiturnCounter.name === "fly") {
+                        if (userMove.name === "gust" || userMove === "thunder" || userMove.name === "twister" || userMove.name === "whirlwind") {
+                            //the move can hit
+                            moveHits = true;
+                            return moveHits;
+                        }
+                        else {
+                            //the move misses
+                            moveHits = false;
+                            battletext.push(capitalize(userMove.name) + " missed!");
+                            var logData = { Attacking_Pokemon: this.name, Defending_Pokemon: target.name, move_name: userMove.name, result: "missed because of " + target.multiturnCounter.name }
+                        }
+                    }
+                    //else check for a miss if the opponent is diving
+                    else if (target.multiturnCounter.name === "dive") {
+                        if (userMove.name === "surf" || userMove.name === "whirlpool") {
+                            //the move can hit
+                            moveHits = true;
+                            return moveHits;
+                        }
+                        else {
+                            //the move misses
+                            moveHits = false;
+                            battletext.push(capitalize(userMove.name) + " missed!");
+                            var logData = { Attacking_Pokemon: this.name, Defending_Pokemon: target.name, move_name: userMove.name, result: "missed because of " + target.multiturnCounter.name }
+                        }
+                    }
+                    else {
+                        //the move can hit
+                        moveHits = true;
+                    }
+                }
+                else {
+                    //the move missed because of accuracy
+                    moveHits = false;
+                    battletext.push(capitalize(userMove.name) + " missed!");
+                    var logData = { Attacking_Pokemon: this.name, Defending_Pokemon: target.name, move_name: userMove.name, result: "missed because of accuracy" }
+                }
+                return moveHits;
+            }
+            //Calculate the "other" damage multiplier
+            otherDamageModifierCalc(userMove, opponent) {
+                if (opponent.multiturnCounter.name === "dig") {
+                    if (userMove === "earthquake" || userMove === "magnitude") {
+                        return 2;
+                    }
+                    else if (userMove === "fissure") {
+                        return 1;
+                    }
+                }
+                else if (opponent.multiturnCounter.name === "fly") {
+                    if (userMove === "gust" || userMove === "thunder" || userMove === "twister" || userMove === "whirlwind") {
+                        return 1;
+                    }
+                }
+                else if (opponent.multiturnCounter.name === "dive") {
+                    if (userMove === "surf" || userMove === "whirlpool") {
+                        return 2;
+                    }
+                }
+                else {
+                    return 1;
+                }
+                return 1;
+            }
+            //Calculates damage done to opponent
+            calculateDamage(move, opponent, effectiveness) {
+                //calculate damage
+                var power = move.power;
+                var movetype = move.type.name;
+                var userlevel = this.level;
+                //calculate physical or special
+                if (move.damage_class.name == "physical") {
+                    var applicableAttackStat = this.stats[4];
+                    var applicableDefenseStat = opponent.stats[3];
+                }
+                else if (move.damage_class.name == "special") {
+                    var applicableAttackStat = this.stats[2];
+                    var applicableDefenseStat = opponent.stats[1];
+                }
+                var targets = 1;
+                var weather = 1;
+                var critical = 1;
+                var random = Math.random() * (1 - .85) + .85;
+                if (this.type1 == movetype || this.type2 == movetype) {
+                    var STAB = 1.5;
+                }
+                else {
+                    var STAB = 1;
+                }
+                var type = 1;
+                for (iCount = 0; iCount < TypedexEntries.length; iCount++) {
+                    if (TypedexEntries[iCount].name == movetype) {
+                        for (iCount2 = 0; iCount2 < TypedexEntries[iCount].damage_relations.double_damage_to.length; iCount2++) {
+                            if (TypedexEntries[iCount].damage_relations.double_damage_to[iCount2].name == opponent.type1 || TypedexEntries[iCount].damage_relations.double_damage_to[iCount2].name == opponent.type2) {
+                                type *= 2;
+                                effectiveness = "It was super effective!";
+                            }
+                        }
+                        for (iCount2 = 0; iCount2 < TypedexEntries[iCount].damage_relations.half_damage_to.length; iCount2++) {
+                            if (TypedexEntries[iCount].damage_relations.half_damage_to[iCount2].name == opponent.type1 || TypedexEntries[iCount].damage_relations.half_damage_to[iCount2].name == opponent.type2) {
+                                type *= .5;
+                                effectiveness = "It was not very effective...";
+                            }
+                        }
+                        for (iCount2 = 0; iCount2 < TypedexEntries[iCount].damage_relations.no_damage_to.length; iCount2++) {
+                            if (TypedexEntries[iCount].damage_relations.no_damage_to[iCount2].name == opponent.type1 || TypedexEntries[iCount].damage_relations.no_damage_to[iCount2].name == opponent.type2) {
+                                type *= 0;
+                                effectiveness = "It had no effect...";
+                            }
+                        }
+                    }
+                }
+                var burn = 1;
+                var other = this.otherDamageModifierCalc(move.name, opponent);
+                var modifier = targets * weather * critical * random * STAB * type * burn * other;
+                var damage = Math.floor(((((((2 * userlevel) / 5) + 2) * power * (applicableAttackStat / applicableDefenseStat)) / 50) + 2) * modifier);
+                return { damage, effectiveness };
+            }
+            //Determines if a status effect resulted
+            calculateStatusEffect(move) {
+                if (move.meta.ailment.name == "poison") {
+                    if (Math.random() * 100 <= move.effect_chance || move.effect_chance === null) {
+                        return "poisoned";
+                    }
+                }
+                else if (move.meta.ailment.name == "paralysis") {
+                    if (Math.random() * 100 <= move.effect_chance || move.effect_chance === null) {
+                        return "paralyzed";
+                    }
+                }
+                else if (move.meta.ailment.name == "sleep") {
+                    if (Math.random() * 100 <= move.effect_chance || move.effect_chance === null) {
+                        return "asleep";
+                    }
+                }
+            }
+            //Determines if any stat changes resulted
+            calculateStatChanges(move, target) {
+                var statChanges = move.stat_changes;
+                var statChangeArray = [0, 0, 0, 0, 0];
+                //Determine target of stat change
+                if (move.meta.category.name == "net-good-stats" || move.meta.category.name == "damage+lower") {
+                    var statChangeTarget = target;
+                }
+                else if (move.meta.category.name == "damage+raise") {
+                    var statChangeTarget = this;
+                }
+                //Check the probability of the stat change happening
+                if (move.meta.category.name === "net-good-stats" || move.meta.stat_chance >= (Math.random() * 100)) {
+                    //Check each stat in "statChanges" to see if it was modified
+                    for (iCount = 0; iCount < statChanges.length; iCount++) {
+                        if (statChanges[iCount].stat.name == "speed") {
+                            statChangeArray[0] = statChanges[iCount].change;
+                        }
+                        else if (statChanges[iCount].stat.name == "special-defense") {
+                            statChangeArray[1] = statChanges[iCount].change
+                        }
+                        else if (statChanges[iCount].stat.name == "special-attack") {
+                            statChangeArray[2] = statChanges[iCount].change
+                        }
+                        else if (statChanges[iCount].stat.name == "defense") {
+                            statChangeArray[3] = statChanges[iCount].change
+                        }
+                        else if (statChanges[iCount].stat.name == "attack") {
+                            statChangeArray[4] = statChanges[iCount].change
+                        }
+                    }
+                }
+                return {target: statChangeTarget, changes: statChangeArray }
+            }
+            //Sets a pokemon status effect
+            setStatusEffect(statusEffect, battletext, moveCategory) {
+                if (statusEffect === "poisoned") {
+                    this.isPoisoned(battletext, moveCategory);
+                }
+                else if (statusEffect === "paralyzed") {
+                    this.isParalyzed(battletext, moveCategory);
+                }
+                else if (statusEffect === "asleep") {
+                    this.isPutToSleep(battletext, moveCategory);
+                }
+            }
+            //Sets a Pokemon to be poisoned
+            isPoisoned(battletext, moveCategory) {
+                if (this.statuseffect == "none") {
+                    this.statuseffect = "poisoned";
+                    var battlehuddiv = document.getElementById(this.owner + "battlehud");
+                    this.setBattleHudDivColor();
+                    battletext.push(capitalize(this.name) + " was poisoned!");
+                }
+                else if (moveCategory === "ailment") {
+                    battletext.push(capitalize(this.name) + " is already " + this.statuseffect + "!");
+                }
+            }
+            //Sets a pokemon to be paralyzed
+            isParalyzed(battletext, moveCategory) {
+                if (this.statuseffect == "none") {
+                    this.statuseffect = "paralyzed";
+                    var battlehuddiv = document.getElementById(this.owner + "battlehud");
+                    this.setBattleHudDivColor();
+                    battletext.push(capitalize(this.name) + " was paralyzed! Maybe it can't attack!");
+                    this.setStatsModified();
+                }
+                else if (moveCategory === "ailment") {
+                    battletext.push(capitalize(this.name) + " is already " + this.statuseffect + "!");
+                }
+            }
+            //Sets a Pokemon to be sleeping
+            isPutToSleep(battletext, moveCategory) {
+                if (this.statuseffect == "none") {
+                    this.statuseffect = "asleep";
+                    //can be asleep for 1-3 turns
+                    this.sleepCounter = Math.floor(Math.random() * 3) + 1;
+                    var battlehuddiv = document.getElementById(this.owner + "battlehud");
+                    this.setBattleHudDivColor();
+                    battletext.push(capitalize(this.name) + " fell asleep!");
+                }
+                else if (moveCategory === "ailment") {
+                    battletext.push(capitalize(this.name) + " is already " + this.statuseffect + "!");
+                }
+            }
+            //Set the battle hud to the appropriate color and information
+            setBattleHudDivColor() {
+                var battlehuddiv = document.getElementById(this.owner + "battlehud");
+                var statuseffect = this.statuseffect;
+                if (statuseffect === "none") {
+                    battlehuddiv.style.background = "linear-gradient(to bottom, rgba(37, 24, 80, 0.7) 0%,rgba(125,185,232,0) 100%)";
+                    document.getElementById(this.owner + "lvl").style.display = "block";
+                    document.getElementById(this.owner + "statuseffectlabel").src = ""
+                    document.getElementById(this.owner + "statuseffectlabel").style.display = "none";
+                }
+                if (statuseffect === "poisoned") {
+                    battlehuddiv.style.background = "linear-gradient(to bottom, rgba(170, 36, 254, 0.8) 0%,rgba(125,185,232,0) 100%)";
+                    document.getElementById(this.owner + "lvl").style.display = "none";
+                    document.getElementById(this.owner + "statuseffectlabel").src = "images/poison.png"
+                    document.getElementById(this.owner + "statuseffectlabel").style.display = "block";
+                }
+                if (statuseffect === "paralyzed") {
+                    battlehuddiv.style.background = "linear-gradient(to bottom, rgba(223, 201, 29, 0.7) 0%,rgba(125,185,232,0) 100%)";
+                    document.getElementById(this.owner + "lvl").style.display = "none";
+                    document.getElementById(this.owner + "statuseffectlabel").src = "images/paralysis.png"
+                    document.getElementById(this.owner + "statuseffectlabel").style.display = "block";
+                }
+                if (statuseffect === "asleep") {
+                    battlehuddiv.style.background = "linear-gradient(to bottom, rgba(211, 211, 211, 1) 0%,rgba(125,185,232,0) 100%)";
+                    document.getElementById(this.owner + "lvl").style.display = "none";
+                    document.getElementById(this.owner + "statuseffectlabel").src = "images/sleep.png"
+                    document.getElementById(this.owner + "statuseffectlabel").style.display = "block";
+                }
+            }
+            //Applies poison damage to a Pokemon
+            takespoisondamage() {
+                var battletext = [];
+                battletext[0] = capitalize(this.name) + " was hurt by the poison!";
+                this.hp -= (Math.floor(this.stats[5] / 8));
+                this.setHP();
+                displayText = new BattleText(battletext);
+                displayText.type();
+            }
+            //Determine result of a stat change
+            changeStats(statChanges, battletext) {
+                for (iCount = 0; iCount < statChanges.changes.length; iCount++) {
+                    this.statsModifiers[iCount] += statChanges.changes[iCount];
+                    if (statChanges.changes[iCount] !== 0) {
+                        var statChangeText;
+                        if (statChanges.changes[iCount] === 2) {
+                            statChangeText = " rose sharply!";
+                        }
+                        else if (statChanges.changes[iCount] === 1) {
+                            statChangeText = " rose!";
+                        }
+                        else if (statChanges.changes[iCount] === -1) {
+                            statChangeText = " fell!";
+                        }
+                        else if (statChanges.changes[iCount] === -2) {
+                            statChangeText = " harshly fell!";
+                        }
+                        battletext.push(capitalize(this.name) + "'s " + this.basestats[iCount].stat.name + statChangeText);
+                    }
+                }
+                this.setStatsModified();
+            }
+            //When a Pokemon faints
+            fainted() {
+                var battletext = []
+                //set on screen text
+                if (this.owner == "my") {
+                    battletext.push(capitalize(this.name) + " fainted!");
+                }
+                else {
+                    battletext.push("The opposing " + capitalize(this.name) + " fainted!");
+                }
+                console.log(battletext)
+                displayText = new BattleText(battletext);
+                displayText.type();
+
+                if (this.getNumberOfPokesRemaining() === 0) {
+                    console.log("The battle is over!")
+                    if (this.owner == "my") {
+                        //The trainer lost
+                        nextAction = function () {
+                            //Will occer when continue button in clicked
+                            lostTheBattle();
+                        }
+                    }
+                    else {
+                        //The trainer won
+                        nextAction = function () {
+                            //Will occer when continue button in clicked
+                            wonTheBattle();
+                        }
+                    }
+                }
+                else {
+                    if (this.owner === "my") {
+                        //The trainer switches Pokemon
+                        nextAction = function () {
+                            //Will occer when continue button in clicked
+                            var battletext = []
+                            battletext.push("Select your next Pokemon")
+                            displayText = new BattleText(battletext);
+                            displayText.type();
+                            nextAction = function () {
+                                //Will occer when continue button in clicked
+                                switchMenu();
+                                nextAction = function () {
+                                    //Will occer when continue button in clicked
+                                    battle.setphase(0);
+                                    battleMenu();
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        //The opponent switches Pokemon
+                        nextAction = function () {
+                            //Will occer when continue button in clicked
+                            var selectedPokemonId = 6;
+                            for (iCount = oppTrainer.party.length - 1; iCount >= 0; iCount--) {
+                                if (oppTrainer.party[iCount].hp > 0) {
+                                    selectedPokemonId = iCount;
+                                }
+                            }
+                            var holder = oppTrainer.party[0];
+                            oppTrainer.party[0] = oppTrainer.party[selectedPokemonId];
+                            oppTrainer.party[selectedPokemonId] = holder;
+                            setBattlingPokemon();
+                            var battletext = []
+                            battletext[0] = oppTrainer.name + " sent out " + capitalize(oppTrainer.party[0].name) + "!";
+                            displayText = new BattleText(battletext)
+                            displayText.type("no");
+                            battle.setphase(8);
+                            setNextActionButton();
+                        }
+                    }
+                }
+            }
+            //returns the number of remaining pokemon
+            getNumberOfPokesRemaining() {
+                var numberRemaining = 0;
+                for (iCount = 0; iCount < window[(this.owner + "Trainer")].party.length; iCount++) {
+                    //If the pokemon at party[icount] is living
+                    if (window[(this.owner + "Trainer")].party[iCount].hp > 0) {
+                        numberRemaining++;
+                    }
+                }
+                return numberRemaining;
+            }
+        }
+        //Battle class contains information for battles
+        class Battle {
+            roundNumber;
+            whoGoesFirst;
+            whoGoesSecond;
+            phases = [];
+            currentphase;
+            placeholder;
+            constructor() {
+                this.roundNumber = 1;
+                this.phases = ["", "turn1", "faintcheck1", "poisoncheck1", "faintcheck1", "turn2", "faintcheck2", "poisoncheck2", "faintcheck2", "endofturn"]
+                this.currentphase = { name: "", id: 0 };
+            }
+            //Set phase moves the battle to the appropriate phase
+            setphase(phaseid) {
+                this.currentphase = { name: this.phases[phaseid], id: phaseid };
+                console.log(this.currentphase.name);
+            }
+        }
+        //Battle text is used to print text to the screen in battles
+        class BattleText {
+            ptag;
+            text = [];
+            constructor(battletext) {
+                this.ptag = document.getElementById("battleptag");
+                this.text = battletext;
+            }
+            //type will output "this.text" to the screen;
+            type(displaybutton) {
+                this.ptag.innerHTML = "";
+                if (displaybutton !== "no") {
+                    document.getElementById("nextbutton").style.display = "none";
+                    document.getElementById("textnextbutton").style.display = "inline-block";
+                }
+                //type the text onscreen
+                this.outputText()
+                //if there is only one line of text
+                if (this.text.length == 1) {
+                    if (displaybutton !== "no") {
+                        //don't show textnextbutton
+                        document.getElementById("nextbutton").style.display = "inline-block";
+                        document.getElementById("textnextbutton").style.display = "none";
+                    }
+                }
+                else {
+                    //delete first line of text, and move all other lines over in the array
+                    for (iCount = 0; iCount < this.text.length; iCount++) {
+                        this.text[iCount] = this.text[iCount + 1];
+                    }
+                    this.text.pop();
+                }
+            }
+            //types the text
+            outputText() {
+                var outputtext = this.text[0];
+                var typeCount = 0;
+                var speed = 30;
+                //types the text out one character at a time
+                function typeit() {
+                    document.getElementById("battlebuttons").style.visibility = "hidden"
+                    if (typeCount < outputtext.length) {
+                        document.getElementById("battleptag").innerHTML += outputtext.charAt(typeCount);
+                        typeCount++;
+                        setTimeout(typeit, speed);
+                    }
+                    else {
+                        document.getElementById("battlebuttons").style.visibility = "visible";
+                    }
+                }
+                typeit();
+            }
+        }
+
+        //Creates the Pokedex screen
+        function createPokedex() {
+            for (iCount = 1; iCount <= PokedexDisplayCount; iCount++) {
+                //creates the divs, img, and p tags
+                pokedexCreateDivs(iCount);
+                PokedexEntries[iCount] = getPokeNameFromId(iCount);
+                loadPokedexEntries(PokedexEntries[iCount], iCount);
+            }
+        }
+        //displays the correct elements for the title screen
+        function titleScreenStartButton() {
+            document.getElementById("startbutton").style.display = "none";
+            document.getElementById("newgamebutton").style.display = "inline-block";
+            document.getElementById("continuegamebutton").style.display = "inline-block";
+            currentScreen = "title";
+        }
+        //displays the correct elements for the main menu screen
+        function mainMenuScreen() {
+            hideAllScreens()
+            document.getElementById("stat_battles").innerHTML = myTrainer.battlecount;
+            document.getElementById("stat_wins").innerHTML = myTrainer.wins;
+            document.getElementById("stat_losses").innerHTML = myTrainer.losses;
+            document.getElementById("stat_winrate").innerHTML = myTrainer.winrate + "%";
+            document.getElementById("stat_badgecount").innerHTML = myTrainer.badgecount;
+            document.getElementById("mainmenuscreen").style.display = "block";
+            document.getElementById("mainmenunavigation").style.display = "block";
+            currentScreen = "main";
+        }
+        //displays the correct elements for the Pokedex
+        function pokedexScreen() {
+            hideAllScreens()
+            document.getElementById("pokedexscreen").style.display = "block";
+            document.getElementById("pokedexnavigation").style.display = "block";
+            currentScreen = "pokedex";
+        }
+        //displays the correct elements for creating a new player
+        function playerCreationScreen() {
+            hideAllScreens()
+            document.getElementById("playercreationscreen").style.display = "block";
+            document.getElementById("playercreationnavigation").style.display = "block";
+            document.getElementById("playercreationname").focus();
+            currentScreen = "player creation";
+        }
+        //displays the correct elements for the free battle screen
+        function freeBattleScreen() {
+            hideAllScreens()
+            //Reset the selection
+            resetFreeBattleScreens()
+            //Show free battle screen
+            document.getElementById("freebattlescreen").style.display = "block";
+            document.getElementById("freebattlenavigation").style.display = "block";
+            document.getElementById("freebattlerules").style.display = "block";
+            document.getElementById("freebattlestartbutton").disabled = true;
+            currentScreen = "free battle rules";
+        }
+        //resets the free battle screen
+        function resetFreeBattleScreens() {
+            for (iCount = 1; iCount <= 7; iCount++) {
+                document.getElementById("1v1selection" + iCount + "img").src = "pokeball.png";
+                document.getElementById("1v1selection" + iCount + "p").innerHTML = "";
+                document.getElementById("1v1selection" + iCount + "id").value = "";
+                if (iCount == 1) { iCount = 6 }
+            }
+            for (iCount = 1; iCount <= 9; iCount++) {
+                document.getElementById("3v3selection" + iCount + "img").src = "pokeballcrop.png";
+                document.getElementById("3v3selection" + iCount + "p").innerHTML = "";
+                document.getElementById("3v3selection" + iCount + "id").value = "";
+                if (iCount == 3) { iCount = 6 }
+            }
+            for (iCount = 1; iCount <= 12; iCount++) {
+                document.getElementById("6v6selection" + iCount + "img").src = "pokeballcrop.png";
+                document.getElementById("6v6selection" + iCount + "p").innerHTML = "";
+                document.getElementById("6v6selection" + iCount + "id").value = "";
+            }
+        }
+        //displays the correct elements for a 1v1 battle
+        function freeBattleScreen1v1() {
+            document.getElementById("freebattlerules").style.display = "none";
+            document.getElementById("freebattle1v1").style.display = "block";
+            currentScreen = "free battle 1v1";
+        }
+        //displays the correct elements for a 3v3 battle
+        function freeBattleScreen3v3() {
+            document.getElementById("freebattlerules").style.display = "none";
+            document.getElementById("freebattle3v3").style.display = "block";
+            currentScreen = "free battle 3v3";
+        }
+        //displays the correct elements for a 6v6 battle
+        function freeBattleScreen6v6() {
+            document.getElementById("freebattlerules").style.display = "none";
+            document.getElementById("freebattle6v6").style.display = "block";
+            currentScreen = "free battle 6v6";
+        }
+        //Used to make the back button work
+        function freeBattleBack() {
+            if (currentScreen === "free battle rules") {
+                mainMenuScreen();
+            }
+            if (currentScreen === "free battle 1v1" || currentScreen === "free battle 3v3" || currentScreen === "free battle 6v6") {
+                freeBattleScreen();
+            }
+        }
+        //displays the correct elements for the Gym Leader Battle Screen
+        function gymLeaderBattleScreen() {
+            hideAllScreens();
+            for (iCount = 1; iCount <= 8; iCount++) {
+                //remove selection from all gym leaders
+                document.getElementById("gymleader" + iCount + "div").className = "gymleaderoption";
+                //show all lock overlays
+                document.getElementById("gymleader" + iCount + "locked").style.display = "block";
+            }
+            //remove lock overlays based on badges earned
+            for (iCount = 1; iCount <= myTrainer.badgecount + 1 && iCount <= 8; iCount++) {
+                document.getElementById("gymleader" + iCount + "locked").style.display = "none";
+            }
+            document.getElementById("gymleaderscreen").style.display = "block";
+            document.getElementById("gymleadernavigation").style.display = "block";
+            document.getElementById("gymleaderselectionscreen").style.display = "block";
+            document.getElementById("gymleaderselection").innerHTML = "";
+            document.getElementById("gympokemonselectbutton").disabled = true;
+            document.getElementById("gymbattlestartbutton").style.display = "none";
+            document.getElementById("gympokemonselection").style.display = "none";
+            document.getElementById("gympokemonselectbutton").style.display = "inline-block"
+            document.getElementById("gymbattlestartbutton").disabled = true;
+            currentScreen = "gymselection"
+        }
+        //used when user click on a gym leader to show selection border around the leader they clicked on
+        function gymLeaderChallengeSelected(id) {
+            for (iCount = 1; iCount <= 8; iCount++) {
+                document.getElementById("gymleader" + iCount + "div").className = "gymleaderoption";
+            }
+            document.getElementById("gymleader" + id + "div").className = "gymleaderoption selected"
+            document.getElementById("gymleaderselection").innerHTML = id;
+            document.getElementById("gympokemonselectbutton").disabled = false;
+        }
+        //When the user selects their gym leader and moves on to select their pokemon with the select pokemon button
+        function selectGymBattlePokemon() {
+            var gymLeaderId = document.getElementById("gymleaderselection").innerHTML;
+            var battlesize = gymLeaderArray[gymLeaderId][1].length;
+            document.getElementById("gymleaderscreentitle").innerHTML = ("Select " + battlesize + " Pokemon to battle " + gymLeaderArray[gymLeaderId][0] + "!");
+            //Resets all six possible selection boxes
+            for (iCount = 1; iCount <= 6; iCount++) {
+                document.getElementById("gymselection" + iCount).style.display = "none";
+                document.getElementById("gymselection" + iCount + "img").src = "pokeball.png";
+                document.getElementById("gymselection" + iCount + "p").innerHTML = "";
+                document.getElementById("gymselection" + iCount + "id").value = "";
+            }
+            //Of the 6 possible boxes, displays only the appropriate amount for that gym leader
+            for (iCount = 1; iCount <= battlesize; iCount++) {
+                document.getElementById("gymselection" + iCount).style.display = "block";
+                document.getElementById("gymselection" + iCount).className = ("selection size" + battlesize);
+            }
+            document.getElementById("gymleaderselectionscreen").style.display = "none";
+            document.getElementById("gympokemonselectbutton").style.display = "none"
+            document.getElementById("gympokemonselection").style.display = "block";
+            document.getElementById("gymbattlestartbutton").style.display = "inline-block";
+        }
+        //displays the correct elements for the battle screen
+        function battleScreen() {
+            hideAllScreens()
+            document.getElementById("battlescreen").style.display = "block";
+            document.getElementById("battlenavigation").style.display = "inline-block";
+            //set hud background
+            document.getElementById("mybattlehud").style.background = "linear-gradient(to bottom, rgba(37, 24, 80, 0.7) 0%,rgba(125,185,232,0) 100%)";
+            document.getElementById("oppbattlehud").style.background = "linear-gradient(to bottom, rgba(37, 24, 80, 0.7) 0%,rgba(125,185,232,0) 100%)";
+            currentScreen = "battle";
+        }
+        //Displays the user options during a battle
+        function battleMenu() {
+            document.getElementById("battleoptions").style.display = "inline-block";
+            document.getElementById("attackoptions").style.display = "none";
+            document.getElementById("nextbutton").style.display = "none";
+            console.log("Round: " + battle.roundNumber);
+            var battletext = []
+            battletext[0] = "What will " + capitalize(myTrainer.party[0].name) + " do?"
+            displayText = new BattleText(battletext)
+            displayText.type("no");
+        }
+        //Displays a Pokemon's "attack" options
+        function attackMenu() {
+            document.getElementById("battleoptions").style.display = "none";
+            document.getElementById("attackoptions").style.display = "inline-block";
+        }
+        //When the user clicks "Bag"
+        function bagMenu() {
+            document.getElementById("battleoptions").style.display = "none";
+            var battletext = [];
+            battletext[0] = ("Items haven't been ad- ...");
+            battletext[1] = ("You uh- ...");
+            battletext[2] = ("You must have left your bag at home today!");
+            displayText = new BattleText(battletext);
+            displayText.type();
+            //sets the continue button to go back to the battle menu after text is displayed
+            nextAction = function () {
+                document.getElementById("battleoptions").style.display = "block";
+                battleMenu();
+            }
+        }
+        //Displays a user's Pokemon team when switching Pokemon
+        function switchMenu() {
+            for (iCount = 1; iCount <= myTrainer.party.length; iCount++) {
+                document.getElementById("switch" + iCount + "sprite").src = myTrainer.party[iCount - 1].sprite;
+                document.getElementById("switch" + iCount + "name").innerHTML = capitalize(myTrainer.party[iCount - 1].name);
+                document.getElementById("switch" + iCount + "hpcurrent").innerHTML = myTrainer.party[iCount - 1].hp;
+                document.getElementById("switch" + iCount + "hpmax").innerHTML = "/" + myTrainer.party[iCount - 1].stats[5];
+                var hppctg = Math.round(myTrainer.party[iCount - 1].hp / myTrainer.party[iCount - 1].stats[5] * 100);
+                document.getElementById("switch" + iCount + "hpbar").style.width = hppctg + '%';
+                sethpbarcolor(hppctg, document.getElementById("switch" + iCount + "hpbar"))
+                document.getElementById("switchparty" + iCount).style.display = "block";
+            }
+            for (iCount = myTrainer.party.length + 1; iCount <= 6; iCount++) {
+                document.getElementById("switchparty" + iCount).style.display = "none";
+            }
+            //Set back button to be available or disabled
+            //if this switch is the selected action for the player's turn...
+            if (battle.currentphase.id === 0) {
+                document.getElementById("switchmenu_back").disabled = false;
+            }
+            //if the switch is because of a faint...
+            else if (battle.currentphase.name === "faintcheck1" || battle.currentphase.name === "faintcheck2") {
+                document.getElementById("switchmenu_back").disabled = true;
+            }
+            document.getElementById("switchviewnavigation").style.display = "block";
+            document.getElementById("battleviewnavigation").style.display = "none";
+            document.getElementById("switchview").style.display = "flex";
+            document.getElementById("battleview").style.display = "none";
+            document.getElementById("switchto").disabled = true;
+        }
+        //Used when the users uses the "Back" button on the switch screen
+        function switchMenuBack() {
+            document.getElementById("switchviewnavigation").style.display = "none";
+            document.getElementById("battleviewnavigation").style.display = "block";
+            document.getElementById("switchview").style.display = "none";
+            document.getElementById("battleview").style.display = "block";
+        }
+        //Used after the user makes a selection for switching Pokemon
+        function switchPokemonSelected(id) {
+            for (iCount = 1; iCount <= myTrainer.party.length; iCount++) {
+                document.getElementById("switchparty" + iCount).className = "party";
+            }
+            if ((myTrainer.party[id.slice(-1) - 1].hp > 0) && (id.slice(-1) != 1)) {
+                document.getElementById(id).className = "party selected";
+                document.getElementById("switchto").disabled = false;
+                battle.placeholder = id.slice(-1);
+            }
+        }
+        //Used for switching Pokemon
+        function switchTo() {
+            //remove highlight on selected Pokemon
+            for (iCount = 1; iCount <= myTrainer.party.length; iCount++) {
+                document.getElementById("switchparty" + iCount).className = "party";
+            }
+            //close switch menu
+            switchMenuBack();
+
+            //if this switch is the selected action for the player's turn
+            if (battle.currentphase.id === 0) {
+                actionSelected({ action: "switch", index: null })
+            }
+            //if the switch is because of a faint
+            else if (battle.currentphase.name === "faintcheck1" || battle.currentphase.name === "faintcheck2") {
+                var selectedPokemonId = parseInt(battle.placeholder - 1)
+                switchPokemon(myTrainer, selectedPokemonId)
+            }
+        }
+        //Used for switching Pokemon
+        function switchPokemon(who, index) {
+            //Set text output
+            var battletext = [];
+            battletext[0] = (who.name + " sent out " + capitalize(who.party[index].name) + "!");
+            displayText = new BattleText(battletext);
+            displayText.type();
+            //send out the new Pokemon
+            var holder = who.party[0];
+            who.party[0] = who.party[index];
+            who.party[index] = holder;
+            setBattlingPokemon();
+        }
+        //When the user clicks "Run"
+        function run() {
+            document.getElementById("battleoptions").style.display = "none";
+            var battletext = [];
+            battletext[0] = ("There's no running from a trainer battle!");
+            displayText = new BattleText(battletext);
+            displayText.type();
+
+            nextAction = function () {
+                document.getElementById("battleoptions").style.display = "block";
+                battleMenu();
+            }
+        }
+        //Hides all screens, resetting the view;
+        function hideAllScreens() {
+            //hide upper screens
+            document.getElementById("titlescreen").style.display = "none";
+            document.getElementById("pokedexscreen").style.display = "none";
+            document.getElementById("mainmenuscreen").style.display = "none";
+            document.getElementById("playercreationscreen").style.display = "none";
+            document.getElementById("freebattlescreen").style.display = "none";
+            document.getElementById("freebattle1v1").style.display = "none";
+            document.getElementById("freebattle3v3").style.display = "none";
+            document.getElementById("freebattle6v6").style.display = "none";
+            document.getElementById("battlescreen").style.display = "none";
+            document.getElementById("gymleaderscreen").style.display = "none";
+            //hide navigation screens
+            document.getElementById("titlenavigation").style.display = "none";
+            document.getElementById("pokedexnavigation").style.display = "none";
+            document.getElementById("mainmenunavigation").style.display = "none";
+            document.getElementById("playercreationnavigation").style.display = "none";
+            document.getElementById("freebattlenavigation").style.display = "none";
+            document.getElementById("battlenavigation").style.display = "none";
+            document.getElementById("gymleadernavigation").style.display = "none";
+        }
+        //Starts a new game, earasing saved data
+        function newGame() {
+            localStorage.removeItem('myTrainer');
+            myTrainer = new Player;
+            playerCreationScreen();
+        }
+        //Loads a user's saved data from localStorage
+        function continueGame() {
+            var loadGame = JSON.parse(localStorage.getItem('myTrainer'));
+            if (typeof loadGame !== 'undefined' && loadGame !== null) {
+                myTrainer = loadGame;
+                document.getElementById("menutext").innerHTML = "Welcome back, " + myTrainer.name + "!";
+                document.getElementById("menuplayersprite").src = myTrainer.sprite;
+                mainMenuScreen();
+            }
+            else {
+                alert("Could not load game");
+            }
+        }
+        //Creates animation of the title screen
+        function pokedexScreenScroll(event) {
+            document.getElementById("pokedexscreen").scrollTop += event.deltaY;
+        }
+        //Decides the appropriate action when a user click a pokemon on the Pokedex Screen (used for Pokemon selection as well as Pokedex Screen)
+        function pokemonClicked(id) {
+            if (currentScreen == "pokedex") {
+                pokedexShowInfo(id);
+            }
+            else if (currentScreen.slice(0, -1) === "gymselection") {
+                pokemonGymTeamSelected(id);
+            }
+            else {
+                pokemonSelected(id);
+            }
+        }
+        //Used on Pokedex screen to show a Pokemon
+        function pokedexShowInfo(pokemon) {
+            var thisPoke = PokedexEntries[pokemon];
+            document.getElementById("pokedexinfoname").innerHTML = capitalize(thisPoke.name);
+            document.getElementById("pokedexinfoknownas").innerHTML = thisPoke.knownas;
+            document.getElementById("pokedexinfotype").innerHTML = capitalize(thisPoke.type1) + " " + capitalize(thisPoke.type2) + " Type";
+            document.getElementById("pokedexinfodescription").innerHTML = thisPoke.description;
+            document.getElementById("mainmenubutton").style.display = "none";
+            document.getElementById("pokedexinfo").style.display = "block";
+            renderPokemon(thisPoke.name);
+        }
+        //Closes an examined Pokedex Pokemon
+        function pokedexHideInfo() {
+            document.getElementById("pokedexinfo").style.display = "none";
+            document.getElementById("mainmenubutton").style.display = "inline-block";
+            engine.dispose();
+        }
+        //Loads Pokedex information at beginning of game
+        async function loadPokedexEntries(name, id) {
+            var pokemondata = await P.getPokemonByName(name);
+            var pokemonspeciesdata = await P.getPokemonSpeciesByName(name);
+            Object.assign(pokemondata, pokemonspeciesdata);
+            pokemondata.moveset = [];
+            pokemondata.knownas = pokemondata.genera[2].genus
+            for (var langCount = 0; langCount < 5; langCount++) {
+                if (pokemondata.flavor_text_entries[langCount].language.name == "en") {
+                    pokemondata.description = pokemondata.flavor_text_entries[langCount].flavor_text;
+                }
+            }
+            pokemondata.sprite = pokemondata.sprites.front_default;
+            pokemondata.sprite_back = pokemondata.sprites.back_default;
+            pokemondata.sprite_shiny = pokemondata.sprites.front_shiny;
+            pokemondata.basestats = pokemondata.stats;
+            pokemondata.type1 = pokemondata.types[0].type.name;
+            if (pokemondata.types.length === 2) {
+                pokemondata.type2 = pokemondata.types[1].type.name;
+            }
+            else {
+                pokemondata.type2 = "";
+            }
+            PokedexEntries[id] = new PokemonEntry(pokemondata);
+            showPoke(PokedexEntries[id], id);
+            pokedexLoaded += 1;
+            if (pokedexLoaded == PokedexDisplayCount) {
+                showIntroAnimation();
+                loadMoveData();
+            }
+        }
+        //Loads move information at start of game
+        async function loadMoveData() {
+            for (iCount2 = 1; iCount2 < PokedexEntries.length; iCount2++) {
+                for (iCount = 0; iCount < 4; iCount++) {
+                    if (movesArray[iCount2][iCount + 1] != "") {
+                        PokedexEntries[iCount2].moveset[iCount] = await P.getMoveByName(movesArray[iCount2][iCount + 1]);
+                    }
+                }
+            }
+        }
+        //returns a Pokemon name given it's id
+        function getPokeNameFromId(id) {
+            return NationalPokedex.pokemon_entries[id - 1].pokemon_species.name;
+        }
+        //Displays Pokemon on Pokedex screen
+        function showPoke(pokemon, id) {
+            document.getElementById("pokename" + id).innerHTML = capitalize(pokemon.name);
+            document.getElementById("pokesprite" + id).src = pokemon.sprite;
+            document.getElementById("pokespriteback" + id).src = pokemon.sprite_back;
+        }
+        //capitalizes the first letter of a string
+        function capitalize(word) {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        }
+        //creates the HTML elements for the Pokedex screen
+        function pokedexCreateDivs(id) {
+            var node = document.getElementById('pokedexentries');
+            var newDiv = document.createElement('div');
+            newDiv.id = ("pokedexitem" + iCount);
+            newDiv.className = "pokedexitem";
+            newDiv.onclick = function () { pokemonClicked(id) };
+            var newDivImg = document.createElement('img');
+            newDivImg.id = ("pokesprite" + iCount);
+            newDivImg.className = "pokesprite";
+            newDivImg.src = "";
+            var newDivImgBack = document.createElement('img');
+            newDivImgBack.id = ("pokespriteback" + iCount);
+            newDivImgBack.className = "hidden";
+            newDivImgBack.src = "";
+            var newDivPname = document.createElement('p');
+            newDivPname.id = ("pokename" + iCount);
+            newDivPname.className = "pokename";
+            newDiv.append(newDivImg, newDivPname, newDivImgBack);
+            node.appendChild(newDiv);
+        }
+        //Character Creation
+        function playerCharacterSelected(id) {
+            for (iCount = 1; iCount <= 12; iCount++) {
+                document.getElementById("playercharacteroption" + iCount).className = "playercharacteroption";
+            }
+            document.getElementById(id).className = "playercharacteroption selected"
+            myTrainer.sprite = document.getElementById(id).src;
+        }
+        //Ensures a name is input
+        function playerCreationNameEntered() {
+            if (document.getElementById("playercreationname").value === "") {
+                alert("Type your name please")
+            }
+            else {
+                myTrainer.name = document.getElementById("playercreationname").value;
+                document.getElementById("playercreationinfo").style.display = "none";
+                document.getElementById("playercreationsprite").style.display = "block";
+                document.getElementById("playercreationnamecontinue").style.display = "none";
+                document.getElementById("playercreationspritecontinue").style.display = "inline-block";
+            }
+        }
+        //Ensures a character sprite is selected
+        function playerCreationSpriteSelected() {
+            if (typeof myTrainer.sprite === "undefined") {
+                alert("Please select a character")
+            }
+            else {
+                localStorage.setItem("myTrainer", JSON.stringify(myTrainer));
+                document.getElementById("menutext").innerHTML = "Welcome back, " + myTrainer.name + "!";
+                document.getElementById("menuplayersprite").src = myTrainer.sprite;
+                mainMenuScreen();
+            }
+        }
+        //Displays and animates the title screen
+        function showIntro() {
+            document.getElementById("loadingscreen").style.opacity = 1;
+            var elem = document.getElementById("loadingscreen").style.opacity;
+            var opacity = 1;
+            var id = setInterval(fade, 10);
+            function fade() {
+                if (opacity <= 0) {
+                    clearInterval(id)
+                    document.getElementById("loadingscreen").style.display = "none";
+                }
+                else {
+                    opacity = opacity - 0.1;
+                    document.getElementById("loadingscreen").style.opacity = opacity;
+                }
+            }
+            document.getElementById("titlenavigation").style.display = "block";
+        }
+        //Creates the title screen
+        function showIntroAnimation() {
+            var introPokemon = [];
+            var totalIntroPokes = 20;
+            introMoveBackground();
+            //Loop to create SMALL sized pokemon
+            for (iCount = 0; iCount < totalIntroPokes; iCount++) {
+                do {
+                    introPokemon[iCount] = (PokedexEntries[Math.floor(Math.random() * PokedexDisplayCount) + 1]);
+                }
+                while (introPokemon[iCount].height > 9)
+                createImgTags(iCount)
+                fillImgTags(iCount, introPokemon)
+                introMovePokes(iCount, introPokemon, totalIntroPokes, iCount);
+            }
+            //Loop to create LARGE sized pokemon
+            for (iCount = 0; iCount < totalIntroPokes / 2; iCount++) {
+                do {
+                    introPokemon[iCount + totalIntroPokes] = (PokedexEntries[Math.floor(Math.random() * PokedexDisplayCount) + 1]);
+                }
+                while (introPokemon[iCount + totalIntroPokes].height <= 9)
+                createImgTags(iCount + totalIntroPokes)
+                fillImgTags(iCount + totalIntroPokes, introPokemon)
+                introMovePokes(iCount + totalIntroPokes, introPokemon, totalIntroPokes, iCount * 2);
+            }
+        }
+        //Creates html for Character Creation screen
+        function createImgTags(iCount) {
+            var node = document.getElementById('introdiv');
+            var newDivImg = document.createElement('img');
+            newDivImg.id = ("introsprite" + iCount);
+            newDivImg.className = "introsprite";
+            newDivImg.style.position = "absolute";
+            newDivImg.src = "";
+            newDivImg.style.height = "";
+            newDivImg.style.zIndex = "";
+            newDivImg.style.top = "";
+            node.appendChild(newDivImg);
+        }
+        //Sets up img tags for Character Creation screen
+        function fillImgTags(iCount, pokemon) {
+            var adjustedHeight;
+            if (pokemon[iCount].height > 18) {
+                adjustedHeight = 18;
+            }
+            else {
+                adjustedHeight = (pokemon[iCount].height + (Math.random() * 2));
+            }
+            document.getElementById("introsprite" + iCount).src = pokemon[iCount].sprite;
+            document.getElementById("introsprite" + iCount).height = (adjustedHeight + 15) * 10;
+            document.getElementById("introsprite" + iCount).style.zIndex = (Math.floor(adjustedHeight * -1) + 100);
+            document.getElementById("introsprite" + iCount).style.top = (420 - adjustedHeight * 25) + "px";
+        }
+        //Controls animation for Intro screen
+        function introMovePokes(iCount, pokemon, totalIntroPokes, creationindex) {
+            var elem = document.getElementById("introsprite" + iCount);
+            var pos = (1220 / totalIntroPokes) * creationindex - 320;
+            var id = setInterval(frame, (pokemon[iCount].height + 5) * 10);
+            function frame() {
+                if (document.getElementById("titlescreen").style.display == "none") {
+                    clearInterval(id);
+                }
+                if (pos >= 900) {
+                    pos = -320;
+                } else {
+                    pos++;
+                    elem.style.left = pos + 'px';
+                }
+            }
+            introLoaded += 1;
+            if (introLoaded == totalIntroPokes * 1.5) {
+                setTimeout(showIntro, 1000);
+            }
+        }
+        //Controls animation of background for Intro screen
+        function introMoveBackground() {
+            var elem = document.getElementById("introbackground");
+            var elem2 = document.getElementById("introbackground2");
+            var pos = 0
+            var pos2 = -960
+            var id = setInterval(frame, 250);
+            function frame() {
+                if (document.getElementById("titlescreen").style.display == "none") {
+                    clearInterval(id);
+                }
+                if (pos >= 960 || pos2 >= 960) {
+                    if (pos >= 960) {
+                        pos = -960;
+                    }
+                    if (pos2 >= 960) {
+                        pos2 = -960;
+                    }
+                } else {
+                    pos++;
+                    pos2++;
+                    elem.style.left = pos + 'px';
+                    elem2.style.left = pos2 + 'px';
+                }
+            }
+        }
+        //When a Pokemon is selected for a free battle on Pokedex Screen
+        function selectPokemon(divid) {
+            document.getElementById("freebattlenavigation").style.display = "none";
+            currentScreen = divid
+            document.getElementById("pokedexscreen").style.display = "block";
+        }
+        //When a Pokemon is selected for a gym battle on Pokedex Screen
+        function selectGymPokemon(divid) {
+            document.getElementById("gymleadernavigation").style.display = "none";
+            currentScreen = divid
+            document.getElementById("pokedexscreen").style.display = "block";
+        }
+        //When a Pokemon is selected for free battle
+        function pokemonSelected(pokemon) {
+            document.getElementById(currentScreen + "img").src = PokedexEntries[pokemon].sprite;
+            document.getElementById(currentScreen + "p").innerHTML = capitalize(PokedexEntries[pokemon].name);
+            document.getElementById(currentScreen + "id").value = pokemon;
+            document.getElementById("pokedexscreen").style.display = "none";
+            document.getElementById("freebattlenavigation").style.display = "block";
+            freeBattleInputCheck();
+            currentScreen = "free battle " + currentScreen.substring(0, 3)
+        }
+        //When a Pokemon is selected for gym battle
+        function pokemonGymTeamSelected(id) {
+            document.getElementById(currentScreen + "img").src = PokedexEntries[id].sprite;
+            document.getElementById(currentScreen + "p").innerHTML = capitalize(PokedexEntries[id].name);
+            document.getElementById(currentScreen + "id").value = id;
+            document.getElementById("pokedexscreen").style.display = "none";
+            document.getElementById("gymleadernavigation").style.display = "block";
+            gymBattleInputCheck();
+            currentScreen = "gymselection";
+        }
+        //Checks if all Pokemon have been selected for a free battle, and enables the battle button if they are
+        function freeBattleInputCheck() {
+            var battlesize = parseInt(currentScreen.charAt(0));
+            var filled = true;
+            for (iCount = 1; iCount <= battlesize; iCount++) {
+                if (document.getElementById(battlesize + "v" + battlesize + "selection" + iCount + "id").value == "") {
+                    filled = false;
+                }
+            }
+            for (iCount = 7; iCount <= (battlesize + 6); iCount++) {
+                if (document.getElementById(battlesize + "v" + battlesize + "selection" + iCount + "id").value == "") {
+                    filled = false;
+                }
+            }
+            if (filled == true) {
+                document.getElementById("freebattlestartbutton").disabled = false;
+            }
+        }
+        //Checks if all Pokemon have been selected for a gym battle, and enables the battle button if they are
+        function gymBattleInputCheck() {
+            var battlesize = gymLeaderArray[document.getElementById("gymleaderselection").innerHTML][1].length;
+            var filled = true;
+            for (iCount = 1; iCount <= battlesize; iCount++) {
+                if (document.getElementById("gymselection" + iCount + "id").value == "") {
+                    filled = false;
+                }
+            }
+            if (filled == true) {
+                document.getElementById("gymbattlestartbutton").disabled = false;
+            }
+        }
+        //Begins a free battle
+        function startFreeBattle() {
+            var battlesize = parseInt(currentScreen.charAt(12));
+            var elementidentifier = (battlesize + "v" + battlesize + "selection")
+            var opponentname = "Pokemon Trainer";
+            battleScreen();
+            battle = new Battle();
+            oppTrainer = new Trainer(opponentname);
+            //set the Pokemon partys
+            myTrainer.party = [];
+            oppTrainer.party = [];
+            for (iCount = 0; iCount < battlesize; iCount++) {
+                //Put the pokemon in the party
+                var myPokemon = PokedexEntries[parseInt(document.getElementById(elementidentifier + (iCount + 1) + "id").value)]
+                myTrainer.party[iCount] = new Pokemon(myPokemon);
+                var oppPokemon = PokedexEntries[parseInt(document.getElementById(elementidentifier + (iCount + 7) + "id").value)]
+                oppTrainer.party[iCount] = new Pokemon(oppPokemon);
+                myTrainer.party[iCount].owner = "my";
+                oppTrainer.party[iCount].owner = "opp";
+            }
+            setBattlingPokemon();
+            battleMenu();
+        }
+        //Begins a gym battle
+        function startGymBattle() {
+            var id = document.getElementById("gymleaderselection").innerHTML;
+            var battlesize = gymLeaderArray[id][1].length;
+            var elementidentifier = "gymselection";
+            var opponentname = gymLeaderArray[id][0];
+            battleScreen();
+            battle = new Battle();
+            oppTrainer = new Trainer(opponentname);
+            //set the Pokemon partys
+            myTrainer.party = [];
+            oppTrainer.party = [];
+            for (iCount = 0; iCount < battlesize; iCount++) {
+                //Put the pokemon in the party
+                var myPokemon = PokedexEntries[parseInt(document.getElementById(elementidentifier + (iCount + 1) + "id").value)]
+                myTrainer.party[iCount] = new Pokemon(myPokemon);
+                var oppPokemon = PokedexEntries[gymLeaderArray[id][1][iCount]];
+                oppTrainer.party[iCount] = new Pokemon(oppPokemon);
+                myTrainer.party[iCount].owner = "my";
+                oppTrainer.party[iCount].owner = "opp";
+            }
+            setBattlingPokemon();
+            battleMenu();
+        }
+        //Displays proper visuals for the two currently out front Pokemon
+        function setBattlingPokemon() {
+            var hppctg;
+            //display sprites and names
+            document.getElementById("mypokemonsprite").src = myTrainer.party[0].sprite_back;
+            document.getElementById("opppokemonsprite").src = oppTrainer.party[0].sprite;
+            document.getElementById("playerpokemonname").innerHTML = capitalize(myTrainer.party[0].name);
+            document.getElementById("opppokemonname").innerHTML = capitalize(oppTrainer.party[0].name);
+            document.getElementById("mypokemonsprite").style.visibility = "visible";
+            document.getElementById("opppokemonsprite").style.visibility = "visible";
+            //set hp text
+            document.getElementById("myhpcurrent").innerHTML = myTrainer.party[0].hp;
+            document.getElementById("opphpcurrent").innerHTML = oppTrainer.party[0].hp;
+            document.getElementById("myhpmax").innerHTML = "/" + myTrainer.party[0].stats[5];
+            document.getElementById("opphpmax").innerHTML = "/" + oppTrainer.party[0].stats[5];
+            //set my hpbar
+            hppctg = Math.ceil(myTrainer.party[0].hp / myTrainer.party[0].stats[5] * 100);
+            document.getElementById("myhpbar").style.width = hppctg + '%';
+            sethpbarcolor(hppctg, document.getElementById("myhpbar"));
+            //set opp hpbar
+            hppctg = Math.ceil(oppTrainer.party[0].hp / oppTrainer.party[0].stats[5] * 100);
+            document.getElementById("opphpbar").style.width = hppctg + '%';
+            sethpbarcolor(hppctg, document.getElementById("opphpbar"));
+            //set hud color
+            myTrainer.party[0].setBattleHudDivColor();
+            oppTrainer.party[0].setBattleHudDivColor();
+            myTrainer.party[0].setHP();
+            oppTrainer.party[0].setHP();
+            myTrainer.party[0].setAttackButtons();
+        }
+        //Used when the user chooses what to do for their turn in a battle
+        function actionSelected(action) {
+            document.getElementById("attackoptions").style.display = "none";
+            document.getElementById("battleoptions").style.display = "none";
+            var mytarget = oppTrainer.party[0];
+            var opptarget = myTrainer.party[0];
+            //store what action was selected
+            myTrainer.party[0].selectedAction = action;
+            if (oppTrainer.party[0].multiturnCounter.count === 1) {
+                oppTrainer.party[0].selectedAction = { action: "attack", index: oppTrainer.party[0].selectedAction.index }
+            }
+            else {
+                //opponent will always select a random attack (in future will program better decisions)
+                oppTrainer.party[0].selectedAction = { action: "attack", index: Math.floor(Math.random() * oppTrainer.party[0].moveset.length) };
+            }
+            //determine who goes first
+            if (action.action === "switch") {
+                battle.whoGoesFirst = myTrainer.party[0];
+                battle.whoGoesSecond = oppTrainer.party[0];
+            }
+            else if (action.action === "attack") {
+                //speed check
+                if (myTrainer.party[0].statsModified[0] > oppTrainer.party[0].statsModified[0]) {
+                    battle.whoGoesFirst = myTrainer.party[0];
+                    battle.whoGoesSecond = oppTrainer.party[0];
+                }
+                else if (myTrainer.party[0].statsModified[0] < oppTrainer.party[0].statsModified[0]) {
+                    battle.whoGoesFirst = oppTrainer.party[0];
+                    battle.whoGoesSecond = myTrainer.party[0];
+                }
+                else if (Math.random() > .5) {
+                    battle.whoGoesFirst = myTrainer.party[0];
+                    battle.whoGoesSecond = oppTrainer.party[0];
+                }
+                else {
+                    battle.whoGoesFirst = oppTrainer.party[0];
+                    battle.whoGoesSecond = myTrainer.party[0];
+                }
+            }
+            //perform first turn, determining which type of action will be performed
+            battle.setphase(1);
+            //if the action is switch
+            if (battle.whoGoesFirst.selectedAction.action === "switch") {
+                var selectedPokemonId = parseInt(battle.placeholder - 1)
+                switchPokemon(myTrainer, selectedPokemonId)
+            }
+            //if the action is attack
+            else if (battle.whoGoesFirst.selectedAction.action === "attack") {
+                battle.whoGoesFirst.attack(battle.whoGoesFirst.selectedAction.index, battle.whoGoesSecond)
+            }
+            setNextActionButton();
+        }
+        //This is a very important function which is called to set the behavior of the "Continue" button. The Continue button calls "nextAction()"
+        function setNextActionButton() {
+            battle.setphase(battle.currentphase.id + 1);
+            //turn1
+            if (battle.currentphase.id == 1) {
+            }
+            //faintcheck1
+            if (battle.currentphase.id == 2) {
+                if (battle.whoGoesSecond.hp <= 0) {
+                    nextAction = function () {
+                        battle.whoGoesSecond.fainted();
+                    }
+                }
+                else {
+                    setNextActionButton();
+                }
+            }
+            //poisoncheck1
+            else if (battle.currentphase.id == 3) {
+                if (battle.whoGoesFirst.statuseffect == "poisoned") {
+                    nextAction = function () {
+                        battle.whoGoesFirst.takespoisondamage();
+                        setNextActionButton();
+                    }
+                }
+                else {
+                    setNextActionButton();
+                }
+            }
+            //faintcheck1
+            else if (battle.currentphase.id == 4) {
+                if (battle.whoGoesFirst.hp <= 0) {
+                    nextAction = function () {
+                        battle.whoGoesFirst.fainted();
+                    }
+                }
+                else {
+                    setNextActionButton();
+                }
+            }
+            //turn2
+            else if (battle.currentphase.id == 5) {
+                nextAction = function () {
+                    battle.whoGoesSecond.attack(battle.whoGoesSecond.selectedAction.index, battle.whoGoesFirst)
+                    setNextActionButton();
+                }
+            }
+            //faintcheck2
+            else if (battle.currentphase.id == 6) {
+                if (battle.whoGoesFirst.hp <= 0) {
+                    nextAction = function () {
+                        battle.whoGoesFirst.fainted();
+                    }
+                }
+                else {
+                    setNextActionButton();
+                }
+            }
+            //poisoncheck2
+            else if (battle.currentphase.id == 7) {
+                if (battle.whoGoesSecond.statuseffect == "poisoned") {
+                    nextAction = function () {
+                        battle.whoGoesSecond.takespoisondamage();
+                        setNextActionButton();
+                    }
+                }
+                else {
+                    setNextActionButton();
+                }
+            }
+            //faintcheck2
+            else if (battle.currentphase.id == 8) {
+                if (battle.whoGoesSecond.hp <= 0) {
+                    nextAction = function () {
+                        battle.whoGoesSecond.fainted();
+                    }
+                }
+                else {
+                    setNextActionButton();
+                }
+            }
+            //endofround
+            else if (battle.currentphase.id == 9) {
+                console.log('Round ' + battle.roundNumber + ' Complete');
+                battle.setphase(0);
+                battle.roundNumber++;
+                if (myTrainer.party[0].multiturnCounter.count === 0) {
+                    nextAction = function () {
+                        battleMenu()
+                    }
+                }
+                else {
+                    nextAction = function () {
+                        actionSelected({ action: "attack", index: myTrainer.party[0].multiturnCounter.moveindex })
+                    }
+                }
+            }
+            else {
+                console.log(battle.currentphase.id);
+            }
+        }
+        //Sets hpbars to the correct color based on damage done
+        function sethpbarcolor(newhp, elem) {
+            if (newhp > 50) {
+                elem.style.background = "linear-gradient(to left, rgb(0, 219, 10) 0%,rgb(138, 219, 0) 100%)";
+            }
+            else if (newhp > 20) {
+                elem.style.background = "linear-gradient(to left, rgb(233, 237, 0) 0%,rgb(237, 209, 0) 100%)";
+            }
+            else {
+                elem.style.background = "linear-gradient(to left, rgb(237, 75, 0) 0%,rgb(237, 75, 0) 100%)";
+            }
+        }
+        //Used when you win!
+        function wonTheBattle() {
+            myTrainer.wins++;
+            myTrainer.battlecount++;
+            setWinrate();
+            var battletext = [];
+            battletext.push(myTrainer.name + " defeated " + oppTrainer.name + "!");
+            //determine if the battle was for a gym badge
+            if (parseInt(document.getElementById("gymleaderselection").innerHTML) === (myTrainer.badgecount + 1)) {
+                myTrainer.badgecount++;
+                battletext.push("You earned a new Gym Badge!");
+                if (myTrainer.badgecount <= 7) {
+                    battletext.push("You can now challenge " + gymLeaderArray[myTrainer.badgecount + 1][0] + "!");
+                }
+                else {
+                    battletext.push("You are a true and unstoppable Pokemon Master!!")
+                }
+            }
+            battletext.push("Congratulations!");
+            displayText = new BattleText(battletext);
+            displayText.type();
+            localStorage.setItem("myTrainer", JSON.stringify(myTrainer));
+            clickToExit()
+        }
+        //Used when you lose!
+        function lostTheBattle() {
+            myTrainer.losses++;
+            myTrainer.battlecount++;
+            setWinrate();
+            var battletext = [];
+            battletext.push(myTrainer.name + " is out of useable Pokemon!");
+            battletext.push(myTrainer.name + " was defeated!");
+            displayText = new BattleText(battletext);
+            displayText.type();
+            clickToExit();
+        }
+        //Used to calculate and set user's winrate
+        function setWinrate() {
+            if (myTrainer.battlecount > 0) {
+                myTrainer.winrate = (myTrainer.wins / myTrainer.battlecount * 100).toFixed(1);
+            }
+        }
+        //Used on a button to exit the battle when it is over
+        function clickToExit() {
+            nextAction = function () {
+                document.getElementById("nextbutton").getElementsByTagName("input")[0].value = "Exit";
+                var battletext = [];
+                battletext.push("Click to exit battle.");
+                displayText = new BattleText(battletext);
+                displayText.type();
+                nextAction = function () {
+                    mainMenuScreen();
+                    document.getElementById("nextbutton").getElementsByTagName("input")[0].value = "Continue";
+                }
+            }
+        }
+        //Babylon code used for the 3D images in the Pokedex
+        function renderPokemon(pokemon) {
+            var canvas = document.getElementById('renderCanvas');
+            engine = new BABYLON.Engine(canvas, true);
+            var delayCreateScene = function () {
+                // Create a basic BJS Scene object.
+                var scene = new BABYLON.Scene(engine);
+                var camera = new BABYLON.ArcRotateCamera('camera', 1.4, 1.4, 100, new BABYLON.Vector3(0, 2.5, 0), scene);
+                var bulby = BABYLON.SceneLoader.ImportMesh("", "scenes/", pokemon + ".gltf", scene, function (newMeshes) {
+                    //scene.createDefaultCameraOrLight(true, false, true);
+                    var totalBoundingBox = getTotalBoundingBox(newMeshes);
+                    scene.activeCamera.attachControl(canvas, false);
+                    scene.activeCamera.useAutoRotationBehavior = true;
+                    scene.activeCamera.autoRotationBehavior.idleRotationSpeed = .1;
+                    scene.activeCamera.lowerRadiusLimit = (totalBoundingBox.boundingSphere.radius * 1.5)
+                    scene.activeCamera.beta -= 0.2;
+                    scene.activeCamera.minZ = 0;
+                    scene.activeCamera.upperBetaLimit = Math.PI / 2 * 0.98;
+                    scene.activeCamera.panningSensibility = 0;
+                    //sets target of camera to the center of the world horizontally and the middle of the pokemon vertically
+                    var centerOfScene = new BABYLON.Vector3(0, totalBoundingBox.boundingSphere.radius * .4, 0)
+                    scene.activeCamera.setTarget(centerOfScene)
+                    scene.activeCamera.radius = ((totalBoundingBox.boundingSphere.radius + 5) * 1.6)
+                    var light = new BABYLON.DirectionalLight("light1", new BABYLON.Vector3(-3, -4, -4), scene);
+                    light.position = new BABYLON.Vector3(30, 20, 40);
+                    light.intensity = 2;
+                    var generator = new BABYLON.ShadowGenerator(512, light);
+                    generator.useBlurExponentialShadowMap = true;
+                    generator.blurKernel = 32;
+                    for (var i = 0; i < scene.meshes.length; i++) {
+                        generator.addShadowCaster(scene.meshes[i]);
+                    }
+                    var helper = scene.createDefaultEnvironment({
+                        enableGroundMirror: true,
+                        groundMirrorAmount: 1,
+                        groundMirrorBlurKernel: 16,
+                        groundMirrorFallOffDistance: 0,
+                        groundMirrorSizeRatio: 1,
+                        groundShadowLevel: 0.7,
+                        createSkybox: false,
+                        cameraContrast: 1.8,
+                    });
+                    scene.clearColor = new BABYLON.Color3(1, 1, 1);
+                    helper.setMainColor(BABYLON.Color3.White());
+                });
+                // Return the created scene.
+                return scene;
+            }
+            var scene = delayCreateScene();
+            engine.runRenderLoop(function () {
+                scene.render();
+            });
+        };
+        //used to set bouding box of Pokemon model so the camera can be set to an appropriate height
+        function getTotalBoundingBox(meshes) {
+            var boundingInfo = meshes[0].getBoundingInfo();
+            var min = boundingInfo.minimum.add(meshes[0].position);
+            var max = boundingInfo.maximum.add(meshes[0].position);
+            for (var i = 1; i < meshes.length; i++) {
+                boundingInfo = meshes[i].getBoundingInfo();
+                min = BABYLON.Vector3.Minimize(min, boundingInfo.minimum.add(meshes[i].position));
+                max = BABYLON.Vector3.Maximize(max, boundingInfo.maximum.add(meshes[i].position));
+            }
+            return new BABYLON.BoundingInfo(min, max);
+        }
+                //This function is not used by the program, but is useful for debugging moves that may not be working
+                function diagnoseMoveSets() {
+            var output;
+            var fullmoveslist = [];
+            //create an array with all moves currently in the game
+            for (iCount = 1; iCount < PokedexEntries.length; iCount++) {
+                for (moveCount = 0; moveCount < PokedexEntries[iCount].moveset.length; moveCount++) {
+                    fullmoveslist.push(PokedexEntries[iCount].moveset[moveCount])
+                }
+            }
+            //remove duplicates from the list
+            var uniquelist = [];
+            for (iCount = 0; iCount < fullmoveslist.length; iCount++) {
+                if (moveNotInMovesList(fullmoveslist[iCount].name)) {
+                    uniquelist.push(fullmoveslist[iCount]);
+                }
+            }
+            //checks if a move is in the list already
+            function moveNotInMovesList(name) {
+                var notinlist = true;
+                for (iCount2 = 0; iCount2 < uniquelist.length; iCount2++) {
+                    if (uniquelist[iCount2].name === name) {
+                        notinlist = false;
+                    }
+                }
+                return notinlist;
+            }
+            //problemslist will contain all moves of category entered below
+            var problemslist = [];
+            for (iCount = 0; iCount < uniquelist.length; iCount++) {
+                var move = uniquelist[iCount];
+                //put desired move category to log in "" below
+                if (move.meta.category.name == "") {
+                    console.log(move)
+                    problemslist.push({ name: uniquelist[iCount].name, category: uniquelist[iCount].meta.category.name, fullmove: uniquelist[iCount] })
+                }
+            }
+            console.log(problemslist)
+        }
+    </script>
+</body>
+</html>
